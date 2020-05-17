@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import PersonalInfo, Interviewer, Interviewee, InterviewSlot, InterviewData
 
+
 class PersonalInfoSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
@@ -12,6 +13,7 @@ class PersonalInfoSerializer(serializers.ModelSerializer):
         )
         model = PersonalInfo
 
+
 class InterviewerSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
@@ -22,16 +24,17 @@ class InterviewerSerializer(serializers.ModelSerializer):
         )
         model = Interviewer
 
+
 class IntervieweeSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
-            'id',
             'user',
             'personal_info',
             'digital_impact',
             'previous_score',
         )
         model = Interviewee
+
 
 class InterviewSlotSerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,6 +46,7 @@ class InterviewSlotSerializer(serializers.ModelSerializer):
             'max_interviewers',
         )
         model = InterviewSlot
+
 
 class InterviewDataSerializer(serializers.ModelSerializer):
     class Meta:
