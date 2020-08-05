@@ -77,7 +77,7 @@ def interviewer_slot_list(request):
         # return JsonResponse(interview_slot_serializer.data, safe=False)
 
     elif request.method == 'POST':
-        interviewer_slot_data = JSONParser.parse(request)
+        interviewer_slot_data = JSONParser().parse(request)
         interviewer_slot_serializer = InterviewSlotSerializer(data=interviewer_slot_data)
         if interviewer_slot_serializer.is_valid():
             interviewer_slot_serializer.save()
