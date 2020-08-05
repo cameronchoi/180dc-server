@@ -100,6 +100,7 @@ class InterviewDataSerializer(serializers.ModelSerializer):
 
 # test
 class FreeInterviewerSlotSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     datetime = serializers.DateTimeField()
 
 
