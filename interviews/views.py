@@ -94,8 +94,11 @@ def interviewee_slot_list(request):
             current_interviewers__gt=0
         )
 
-        interviewee_slot_serializer = InterviewSlotSerializer(interview_slots, many=True)
+        interviewee_slot_serializer = FreeIntervieweeSlotSerializer(interview_slots, many=True)
         return JsonResponse(interviewee_slot_serializer.data, safe=False)
+
+        # interviewee_slot_serializer = InterviewSlotSerializer(interview_slots, many=True)
+        # return JsonResponse(interviewee_slot_serializer.data, safe=False)
 
     elif request.method == 'POST':
         interviewee_slot_data = JSONParser().parse(request)
