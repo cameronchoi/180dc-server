@@ -96,3 +96,8 @@ class InterviewDataSerializer(serializers.ModelSerializer):
             'digital_impact',
         )
         model = InterviewData
+
+
+# test
+class FreeInterviewerSlotSerializer(serializers.Serializer):
+    datetime = serializers.DateTimeField()
