@@ -66,7 +66,9 @@ class InterviewSlot(models.Model):
 
     datetime = models.DateTimeField()
     max_interviewees = models.IntegerField()
+    current_interviewees = models.IntegerField()
     max_interviewers = models.IntegerField()
+    current_interviewers = models.IntegerField()
 
     class Meta:
         ordering = ['datetime']
