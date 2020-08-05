@@ -85,8 +85,7 @@ def interviewer_slot_list(request):
         return JsonResponse(interviewer_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-#  other views
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def interviewee_slot_list(request):
     if request.method == 'GET':
         interview_slots = InterviewSlot.objects.all().filter(
@@ -95,5 +94,13 @@ def interviewee_slot_list(request):
             current_interviewers__gt=0
         )
 
-        interview_slot_serializer = InterviewSlotSerializer(interview_slots, many=True)
-        return JsonResponse(interview_slot_serializer.data, safe=False)
+        interviewee_slot_serializer = InterviewSlotSerializer(interview_slots, many=True)
+        return JsonResponse(interviewee_slot_serializer.data, safe=False)
+
+    elif request.method == 'POST':
+        interviewee_slot_data = JSONParser().parse(request)
+        interviewee_slot_serializer = InterviewSlotSerializer(data=interviewee_slot_data)
+        if interviewee_slot_serializer.is_valid():
+            interviewee_slot_serializer.save()
+            return JsonResponse(interviewee_slot_serializer.data, status=status.HTTP_201_CREATED)
+        return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
