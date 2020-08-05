@@ -83,3 +83,17 @@ def interviewer_slot_list(request):
             interviewer_slot_serializer.save()
             return JsonResponse(interviewer_slot_serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(interviewer_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+#  other views
+@api_view(['GET'])
+def interviewee_slot_list(request):
+    if request.method == 'GET':
+        interview_slots = InterviewSlot.objects.all().filter(
+            current_interviewers__lt=F('max_interviewers')
+        ).filter(
+            current_interviewers__gt=0
+        )
+
+        interview_slot_serializer = InterviewSlotSerializer(interview_slots, many=True)
+        return JsonResponse(interview_slot_serializer.data, safe=False)

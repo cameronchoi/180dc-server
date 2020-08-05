@@ -20,4 +20,5 @@ urlpatterns = [
     path('api/interviewee', views.ListInterviewee.as_view()),
     path('api/interviewee/<int:pk>', views.DetailInterviewee.as_view()),
     path('api/interviewertimes', views.interviewer_slot_list),
+    path('api/intervieweetimes', views.interviewee_slot_list),
 ]
