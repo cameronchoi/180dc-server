@@ -78,8 +78,8 @@ class InterviewSlot(models.Model):
 
 
 class InterviewData(models.Model):
-    interviewer = models.ForeignKey(Interviewer, on_delete=models.PROTECT)
-    interviewee = models.ForeignKey(Interviewee, on_delete=models.PROTECT)
+    interviewer = models.ForeignKey(Interviewer, on_delete=models.PROTECT, null=True)
+    interviewee = models.ForeignKey(Interviewee, on_delete=models.PROTECT, null=True)
     interview_slot = models.ForeignKey(InterviewSlot, on_delete=models.PROTECT)
     invigilator = models.ForeignKey(Interviewer, on_delete=models.SET_NULL, null=True, related_name='invigilator')
     standby = models.ForeignKey(Interviewer, on_delete=models.SET_NULL, null=True, related_name='standby')
