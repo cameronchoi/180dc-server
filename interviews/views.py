@@ -46,14 +46,17 @@ class DetailInterviewData(generics.RetrieveUpdateDestroyAPIView):
 @api_view(['GET', 'POST'])
 def interviewer_slot_list(request):
     if request.method == 'GET':
-        interview_slots = InterviewData.objects.all().filter(current_interviewers__lt=F('max_interviewers'))
+        interview_slots = InterviewData.objects.all().filter(
+            current_interviewers__lt=F('max_interviewers'))
 
-        interviewer_slot_serializer = GetInterviewerSlotSerializer(interview_slots, many=True)
+        interviewer_slot_serializer = GetInterviewerSlotSerializer(
+            interview_slots, many=True)
         return JsonResponse(interviewer_slot_serializer.data, safe=False)
 
     elif request.method == 'POST':
         interviewer_slot_data = JSONParser().parse(request)
-        interviewer_slot_serializer = InterviewTimeslotSerializer(data=interviewer_slot_data)
+        interviewer_slot_serializer = InterviewTimeslotSerializer(
+            data=interviewer_slot_data)
         if interviewer_slot_serializer.is_valid():
             for timeslot in interviewer_slot_serializer.data['availableTimes']:
                 interviewer = Interviewer.objects.get(user__first_name='Jane')
@@ -79,19 +82,22 @@ def interviewee_slot_list(request):
             current_interviewees__lt=F('max_interviewees')
         )
 
-        interviewee_slot_serializer = GetIntervieweeSlotSerializer(interview_slots, many=True)
+        interviewee_slot_serializer = GetIntervieweeSlotSerializer(
+            interview_slots, many=True)
         return JsonResponse(interviewee_slot_serializer.data, safe=False)
 
     elif request.method == 'POST':
         interviewee_slot_data = JSONParser().parse(request)
-        interviewee_slot_serializer = InterviewTimeslotSerializer(data=interviewee_slot_data)
+        interviewee_slot_serializer = InterviewTimeslotSerializer(
+            data=interviewee_slot_data)
         if interviewee_slot_serializer.is_valid():
             for timeslot in interviewee_slot_serializer.data['availableTimes']:
                 interview_slot = InterviewData.objects.get(datetime=timeslot)
 
                 # if there's space
-                if interview_slot.current_interviewees < interview_slot.max_interviewers:
-                    interviewee = Interviewee.objects.get(user__first_name='John')
+                if interview_slot.current_interviewees < interview_slot.max_interviewees:
+                    interviewee = Interviewee.objects.get(
+                        user__first_name='John')
 
                     try:
                         interview_slot.interviewees.add(interviewee)
