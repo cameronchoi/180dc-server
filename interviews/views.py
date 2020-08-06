@@ -62,13 +62,13 @@ class DetailInterviewData(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = InterviewDataSerializer
 
 
-#  other views
+# other views
 @api_view(['GET', 'POST'])
 def interviewer_slot_list(request):
     if request.method == 'GET':
         interview_slots = InterviewSlot.objects.all().filter(current_interviewers__lt=F('max_interviewers'))
 
-        interviewer_slot_serializer = FreeInterviewerSlotSerializer(interview_slots, many=True)
+        interviewer_slot_serializer = GetInterviewerSlotSerializer(interview_slots, many=True)
         return JsonResponse(interviewer_slot_serializer.data, safe=False)
 
         # serialized_data = serializers.serialize('json', interview_slots, fields='datetime')
@@ -78,9 +78,20 @@ def interviewer_slot_list(request):
 
     elif request.method == 'POST':
         interviewer_slot_data = JSONParser().parse(request)
-        interviewer_slot_serializer = InterviewSlotSerializer(data=interviewer_slot_data)
+        interviewer_slot_serializer = PostInterviewerSlotSerializer(data=interviewer_slot_data)
         if interviewer_slot_serializer.is_valid():
-            interviewer_slot_serializer.save()
+            # print(interviewer_slot_serializer.data['availableTimes'])
+            for timeslot in interviewer_slot_serializer.data['availableTimes']:
+                # print(timeslot)
+                interviewer = Interviewer.objects.get(user__first_name='Jane')
+                interviewee = Interviewee.objects.get(user__first_name='John')
+                interview_slot = InterviewSlot.objects.get(datetime=timeslot)
+                InterviewData.objects.create(
+                    interviewer=interviewer,
+                    interviewee=interviewee,
+                    interview_slot=interview_slot,
+                )
+            # interviewer_slot_serializer.save()
             return JsonResponse(interviewer_slot_serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(interviewer_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -94,7 +105,7 @@ def interviewee_slot_list(request):
             current_interviewers__gt=0
         )
 
-        interviewee_slot_serializer = FreeIntervieweeSlotSerializer(interview_slots, many=True)
+        interviewee_slot_serializer = GetIntervieweeSlotSerializer(interview_slots, many=True)
         return JsonResponse(interviewee_slot_serializer.data, safe=False)
 
         # interviewee_slot_serializer = InterviewSlotSerializer(interview_slots, many=True)

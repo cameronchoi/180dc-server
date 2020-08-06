@@ -99,11 +99,17 @@ class InterviewDataSerializer(serializers.ModelSerializer):
 
 
 # test
-class FreeInterviewerSlotSerializer(serializers.Serializer):
+class GetInterviewerSlotSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     datetime = serializers.DateTimeField()
 
 
-class FreeIntervieweeSlotSerializer(serializers.Serializer):
+class GetIntervieweeSlotSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     datetime = serializers.DateTimeField()
+
+
+class PostInterviewerSlotSerializer(serializers.Serializer):
+    availableTimes = serializers.ListField(
+        child=serializers.DateTimeField()
+    )
