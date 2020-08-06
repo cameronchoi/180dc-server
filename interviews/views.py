@@ -46,29 +46,28 @@ class DetailInterviewData(generics.RetrieveUpdateDestroyAPIView):
 @api_view(['GET', 'POST'])
 def interviewer_slot_list(request):
     if request.method == 'GET':
-        interview_slots = InterviewSlot.objects.all().filter(current_interviewers__lt=F('max_interviewers'))
+        interview_slots = InterviewData.objects.all().filter(current_interviewers__lt=F('max_interviewers'))
 
         interviewer_slot_serializer = GetInterviewerSlotSerializer(interview_slots, many=True)
         return JsonResponse(interviewer_slot_serializer.data, safe=False)
 
     elif request.method == 'POST':
         interviewer_slot_data = JSONParser().parse(request)
-        interviewer_slot_serializer = PostInterviewerSlotSerializer(data=interviewer_slot_data)
+        interviewer_slot_serializer = InterviewTimeslotSerializer(data=interviewer_slot_data)
         if interviewer_slot_serializer.is_valid():
             for timeslot in interviewer_slot_serializer.data['availableTimes']:
                 interviewer = Interviewer.objects.get(user__first_name='Jane')
-                interviewee = Interviewee.objects.get(user__first_name='John')
-                interview_slot = InterviewSlot.objects.get(datetime=timeslot)
+                interview_slot = InterviewData.objects.get(datetime=timeslot)
 
-                # general try catch for now
-                try:
-                    InterviewData.objects.create(
-                        interviewer=interviewer,
-                        interviewee=interviewee,
-                        interview_slot=interview_slot,
-                    )
-                except:
-                    pass
+                # check if got space
+                if interview_slot.current_interviewers < interview_slot.max_interviewers:
+                    # general try catch for now
+                    try:
+                        interview_slot.interviewers.add(interviewer)
+                        interview_slot.current_interviewers += 1
+                        interview_slot.save()
+                    except:
+                        pass
             return JsonResponse(interviewer_slot_serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(interviewer_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -76,7 +75,7 @@ def interviewer_slot_list(request):
 @api_view(['GET', 'POST'])
 def interviewee_slot_list(request):
     if request.method == 'GET':
-        interview_slots = InterviewSlot.objects.all().filter(
+        interview_slots = InterviewData.objects.all().filter(
             current_interviewers__lt=F('max_interviewers')
         ).filter(
             current_interviewers__gt=0
@@ -85,11 +84,24 @@ def interviewee_slot_list(request):
         interviewee_slot_serializer = GetIntervieweeSlotSerializer(interview_slots, many=True)
         return JsonResponse(interviewee_slot_serializer.data, safe=False)
 
-
     elif request.method == 'POST':
         interviewee_slot_data = JSONParser().parse(request)
-        interviewee_slot_serializer = InterviewSlotSerializer(data=interviewee_slot_data)
+        interviewee_slot_serializer = InterviewTimeslotSerializer(data=interviewee_slot_data)
         if interviewee_slot_serializer.is_valid():
-            interviewee_slot_serializer.save()
+            for timeslot in interviewee_slot_serializer.data['availableTimes']:
+                interview_slot = InterviewData.objects.get(datetime=timeslot)
+
+                # if there's space
+                if interview_slot.current_interviewees < interview_slot.max_interviewers:
+                    interviewee = Interviewee.objects.get(user__first_name='John')
+
+                    try:
+                        interview_slot.interviewees.add(interviewee)
+                        interview_slot.current_interviewees += 1
+                        interview_slot.save()
+                    except:
+                        pass
+                    break
+
             return JsonResponse(interviewee_slot_serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

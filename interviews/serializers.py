@@ -80,7 +80,7 @@ class GetIntervieweeSlotSerializer(serializers.Serializer):
     datetime = serializers.DateTimeField()
 
 
-class PostInterviewerSlotSerializer(serializers.Serializer):
+class InterviewTimeslotSerializer(serializers.Serializer):
     availableTimes = serializers.ListField(
         child=serializers.DateTimeField()
     )
