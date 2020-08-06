@@ -38,8 +38,8 @@ class Interviewee(models.Model):
 
 class InterviewData(models.Model):
     datetime = models.DateTimeField()
-    interviewer = models.ManyToManyField(Interviewer)
-    interviewee = models.ManyToManyField(Interviewee)
+    interviewers = models.ManyToManyField(Interviewer, blank=True)
+    interviewees = models.ManyToManyField(Interviewee, blank=True)
     max_interviewees = models.IntegerField(default=1)
     current_interviewees = models.IntegerField(default=0)
     max_interviewers = models.IntegerField(default=1)
@@ -58,16 +58,6 @@ class InterviewData(models.Model):
 
     def __str__(self):
         if self.room is None:
-            if self.interviewer is None:
-                return "No Interviewer, %s, Room Not Set" % self.interviewee
-            elif self.interviewee is None:
-                return "%s, No Interviewee, Room Not Set" % self.interviewer
-            else:
-                return "%s, %s, Room Not Set" % (self.interviewer, self.interviewee)
+            return "%s, Room Not Set" % self.datetime
         else:
-            if self.interviewer is None:
-                return "No Interviewer, %s, Room %s" % (self.interviewee, self.room)
-            elif self.interviewee is None:
-                return "%s, No Interviewee, Room %s" % (self.interviewer, self.room)
-            else:
-                return "%s, %s, Room %s" % (self.interviewer, self.interviewee, self.room)
+            return "%s, Room %s" % (self.datetime, self.room)

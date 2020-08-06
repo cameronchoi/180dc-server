@@ -56,8 +56,8 @@ class InterviewDataSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
             'id',
-            'interviewer',
-            'interviewee',
+            'interviewers',
+            'interviewees',
             'interview_slot',
             'invigilator',
             'standby',
