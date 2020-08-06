@@ -71,18 +71,11 @@ def interviewer_slot_list(request):
         interviewer_slot_serializer = GetInterviewerSlotSerializer(interview_slots, many=True)
         return JsonResponse(interviewer_slot_serializer.data, safe=False)
 
-        # serialized_data = serializers.serialize('json', interview_slots, fields='datetime')
-        # print(serialized_data)
-        # interview_slot_serializer = InterviewSlotSerializer(interview_slots, many=True)
-        # return JsonResponse(interview_slot_serializer.data, safe=False)
-
     elif request.method == 'POST':
         interviewer_slot_data = JSONParser().parse(request)
         interviewer_slot_serializer = PostInterviewerSlotSerializer(data=interviewer_slot_data)
         if interviewer_slot_serializer.is_valid():
-            # print(interviewer_slot_serializer.data['availableTimes'])
             for timeslot in interviewer_slot_serializer.data['availableTimes']:
-                # print(timeslot)
                 interviewer = Interviewer.objects.get(user__first_name='Jane')
                 interviewee = Interviewee.objects.get(user__first_name='John')
                 interview_slot = InterviewSlot.objects.get(datetime=timeslot)
@@ -112,8 +105,6 @@ def interviewee_slot_list(request):
         interviewee_slot_serializer = GetIntervieweeSlotSerializer(interview_slots, many=True)
         return JsonResponse(interviewee_slot_serializer.data, safe=False)
 
-        # interviewee_slot_serializer = InterviewSlotSerializer(interview_slots, many=True)
-        # return JsonResponse(interviewee_slot_serializer.data, safe=False)
 
     elif request.method == 'POST':
         interviewee_slot_data = JSONParser().parse(request)
