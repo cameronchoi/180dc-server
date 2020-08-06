@@ -77,8 +77,6 @@ def interviewee_slot_list(request):
     if request.method == 'GET':
         interview_slots = InterviewData.objects.all().filter(
             current_interviewees__lt=F('max_interviewees')
-        ).filter(
-            current_interviewers__gt=0
         )
 
         interviewee_slot_serializer = GetIntervieweeSlotSerializer(interview_slots, many=True)
