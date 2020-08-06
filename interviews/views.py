@@ -12,16 +12,6 @@ from .serializers import *
 
 
 # class based views
-class ListPersonalInfo(generics.ListCreateAPIView):
-    queryset = PersonalInfo.objects.all()
-    serializer_class = PersonalInfoSerializer
-
-
-class DetailPersonalInfo(generics.RetrieveUpdateDestroyAPIView):
-    queryset = PersonalInfo.objects.all()
-    serializer_class = PersonalInfoSerializer
-
-
 class ListInterviewer(generics.ListCreateAPIView):
     queryset = Interviewer.objects.all()
     serializer_class = InterviewerSerializer
@@ -40,16 +30,6 @@ class ListInterviewee(generics.ListCreateAPIView):
 class DetailInterviewee(generics.RetrieveUpdateDestroyAPIView):
     queryset = Interviewee.objects.all()
     serializer_class = IntervieweeSerializer
-
-
-class ListInterviewSlot(generics.ListCreateAPIView):
-    queryset = InterviewSlot.objects.all()
-    serializer_class = InterviewSlotSerializer
-
-
-class DetailInterviewSlot(generics.RetrieveUpdateDestroyAPIView):
-    queryset = InterviewSlot.objects.all()
-    serializer_class = InterviewSlotSerializer
 
 
 class ListInterviewData(generics.ListCreateAPIView):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import PersonalInfo, Interviewer, Interviewee, InterviewSlot, InterviewData
+from .models import Interviewer, Interviewee, InterviewData
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -15,20 +15,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
-class PersonalInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = (
-            'degree_one',
-            'degree_two',
-            'major_one',
-            'major_two',
-        )
-        model = PersonalInfo
-
-
 class IntervieweeSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    personal_info = PersonalInfoSerializer()
 
     class Meta:
         fields = [
@@ -41,16 +29,13 @@ class IntervieweeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
-        personal_info_data = validated_data.pop('personal_info')
         user = User.objects.create(**user_data)
-        personal_info = PersonalInfo.objects.create(**personal_info_data)
-        interviewee = Interviewee.objects.create(user=user, personal_info=personal_info, **validated_data)
+        interviewee = Interviewee.objects.create(user=user, **validated_data)
         return interviewee
 
 
 class InterviewerSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    personal_info = PersonalInfoSerializer()
 
     class Meta:
         fields = (
@@ -62,23 +47,9 @@ class InterviewerSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
-        personal_info_data = validated_data.pop('personal_info')
         user = User.objects.create(**user_data)
-        personal_info = PersonalInfo.objects.create(**personal_info_data)
-        interviewer = Interviewer.objects.create(user=user, personal_info=personal_info, **validated_data)
+        interviewer = Interviewer.objects.create(user=user, **validated_data)
         return interviewer
-
-
-class InterviewSlotSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = (
-            'id',
-            'day',
-            'datetime',
-            'max_interviewees',
-            'max_interviewers',
-        )
-        model = InterviewSlot
 
 
 class InterviewDataSerializer(serializers.ModelSerializer):
