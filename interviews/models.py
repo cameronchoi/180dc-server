@@ -44,12 +44,14 @@ class InterviewData(models.Model):
     current_interviewees = models.IntegerField(default=0)
     max_interviewers = models.IntegerField(default=1)
     current_interviewers = models.IntegerField(default=0)
+    room = models.CharField(null=True, blank=True, max_length=50)
+    digital_impact = models.BooleanField(default=False)  # false = strategy
+
+    # unneeded stuff for now
     # invigilator = models.ForeignKey(Interviewer, on_delete=models.SET_NULL, null=True, related_name='invigilator')
     # standby = models.ForeignKey(Interviewer, on_delete=models.SET_NULL, null=True, related_name='standby')
-    room = models.CharField(null=True, blank=True, max_length=50)
     # stream = models.CharField(null=True, blank=True, max_length=150)
     # full = models.BooleanField(default=False)
-    digital_impact = models.BooleanField(default=False)  # false = strategy
 
     class Meta:
         ordering = ['datetime']
