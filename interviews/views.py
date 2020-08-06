@@ -86,12 +86,16 @@ def interviewer_slot_list(request):
                 interviewer = Interviewer.objects.get(user__first_name='Jane')
                 interviewee = Interviewee.objects.get(user__first_name='John')
                 interview_slot = InterviewSlot.objects.get(datetime=timeslot)
-                InterviewData.objects.create(
-                    interviewer=interviewer,
-                    interviewee=interviewee,
-                    interview_slot=interview_slot,
-                )
-            # interviewer_slot_serializer.save()
+
+                # general try catch for now
+                try:
+                    InterviewData.objects.create(
+                        interviewer=interviewer,
+                        interviewee=interviewee,
+                        interview_slot=interview_slot,
+                    )
+                except:
+                    pass
             return JsonResponse(interviewer_slot_serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(interviewer_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
