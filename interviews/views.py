@@ -99,9 +99,25 @@ def interviewee_slot_list(request):
                         interview_slot.interviewees.add(interviewee)
                         interview_slot.current_interviewees += 1
                         interview_slot.save()
-                    except:
-                        pass
-                    break
 
-            return JsonResponse(interviewee_slot_serializer.data, status=status.HTTP_201_CREATED)
-        return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                        if interview_slot.room is not None:
+                            response = {
+                                'interviewTime': timeslot,
+                                'interviewRoom': interview_slot.room
+                            }
+                            return JsonResponse(response, status=status.HTTP_201_CREATED)
+                        else:
+                            response = {
+                                'interviewTime': timeslot,
+                                'interviewRoom': 'Room Not Set'
+                            }
+                            return JsonResponse(response, status=status.HTTP_201_CREATED)
+                    except:
+                        response = {'errors': 'try/catch'}
+                        return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
+            # if we exit the for loop we didn't find anything
+            response = {'errors': 'exit for loop'}
+            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
