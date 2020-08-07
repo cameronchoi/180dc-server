@@ -14,7 +14,7 @@ class IntervieweeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interviewee
-        fields = '__all__'
+        exclude = ['previous_score']
 
 
 class InterviewerSerializer(serializers.ModelSerializer):
