@@ -1,7 +1,12 @@
 from django.http.response import JsonResponse
-from rest_framework.decorators import api_view
+from django.core.exceptions import ObjectDoesNotExist
+
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.parsers import JSONParser
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.authtoken.models import Token
 
 from django.db.models import F
 
@@ -10,7 +15,31 @@ from .serializers import InterviewerSerializer, IntervieweeSerializer, Interview
     GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer
 
 
+@api_view(['POST'])
+def login_view(request):
+    if request.method == 'POST':
+        serializer = AuthTokenSerializer(data=request.data,
+                                         context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+
+        if hasattr(user, 'interviewer'):
+            position = 'interviewer'
+        elif hasattr(user, 'interviewee'):
+            position = 'interviewee'
+        else:
+            position = 'error'
+
+        response = {
+            'token': token.key,
+            'position': position
+        }
+        return JsonResponse(response)
+
+
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def interviewee_details(request):
     if request.method == 'GET':
         interviewee = Interviewee.objects.get(user__first_name='John')

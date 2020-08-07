@@ -38,15 +38,17 @@ INSTALLED_APPS = [
 
     'corsheaders',  # for allowing cross origin resource sharing for development
     'rest_framework',  # for api
-    'rest_framework.authtoken',
-    'dj_rest_auth',  # for authentication
+    'rest_framework.authtoken',  # for authentication
     'interviews',  # actual application
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
-    ]
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication'
+    ],
 }
 
 MIDDLEWARE = [
