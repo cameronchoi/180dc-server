@@ -12,7 +12,7 @@ from django.db.models import F
 
 from .models import Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
-    GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer
+    GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer
 
 
 @api_view(['POST'])
@@ -54,19 +54,43 @@ def interviewee_details(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def interviewer_details(request):
-    # first check if user is an interviewer
-    try:
-        interviewer = Interviewer.objects.get(user=request.user)
-    except ObjectDoesNotExist:
-        response = {'errors': "user isn't an interviewer"}
-        return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
-
     if request.method == 'GET':
+        # first check if user is an interviewer
+        try:
+            interviewer = Interviewer.objects.get(user=request.user)
+        except ObjectDoesNotExist:
+            response = {'errors': "user isn't an interviewer"}
+            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
         interviewer_serializer = InterviewerSerializer(interviewer)
         return JsonResponse(interviewer_serializer.data)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def interview_details(request):
+    if request.method == 'GET':
+        # check if user is interviewer or interviewee
+        if hasattr(request.user, 'interviewer'):
+            interviewer = True
+        elif hasattr(request.user, 'interviewee'):
+            interviewer = False
+        else:
+            response = {'errors': "user isn't an interviewer or interviewee"}
+            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
+        # now get all relevant interview data
+        if interviewer:
+            interview_data = InterviewData.objects.filter(interviewers__user=request.user)
+        else:
+            interview_data = InterviewData.objects.filter(interviewees__user=request.user)
+
+        interview_details_serializer = GetInterviewDetailsSerializer(interview_data, many=True)
+        return JsonResponse(interview_details_serializer.data, safe=False)
+
+
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def interviewer_slot_list(request):
     if request.method == 'GET':
         interview_slots = InterviewData.objects.all().filter(

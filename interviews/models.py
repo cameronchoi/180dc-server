@@ -16,7 +16,10 @@ class Interviewer(models.Model):
         ordering = ['user']
 
     def __str__(self):
-        return "%s %s" % (self.user.first_name, self.user.last_name)
+        if self is not None:
+            return "%s %s" % (self.user.first_name, self.user.last_name)
+        else:
+            return "None"
 
 
 class Interviewee(models.Model):
@@ -33,7 +36,10 @@ class Interviewee(models.Model):
         ordering = ['user']
 
     def __str__(self):
-        return "%s %s" % (self.user.first_name, self.user.last_name)
+        if self is not None:
+            return "%s %s" % (self.user.first_name, self.user.last_name)
+        else:
+            return "None"
 
 
 class InterviewData(models.Model):

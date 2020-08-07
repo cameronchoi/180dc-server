@@ -25,6 +25,14 @@ class InterviewerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GetInterviewDetailsSerializer(serializers.Serializer):
+    datetime = serializers.DateTimeField()
+    interviewers = serializers.StringRelatedField(many=True)
+    interviewees = serializers.StringRelatedField(many=True)
+    room = serializers.CharField(max_length=50)
+    digital_impact = serializers.BooleanField()
+
+
 class GetInterviewerSlotSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     datetime = serializers.DateTimeField()

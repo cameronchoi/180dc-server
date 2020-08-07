@@ -22,4 +22,5 @@ urlpatterns = [
     path('api/interviewer', views.interviewer_details),
     path('api/interviewertimes', views.interviewer_slot_list),
     path('api/intervieweetimes', views.interviewee_slot_list),
+    path('api/interviewtimes', views.interview_details),
 ]
