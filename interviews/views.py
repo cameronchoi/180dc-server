@@ -123,6 +123,7 @@ def interviewer_slot_list(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def interviewee_slot_list(request):
     if request.method == 'GET':
         interview_slots = InterviewData.objects.all().filter(
