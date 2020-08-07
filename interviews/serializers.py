@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import *
+
+from .models import Interviewee, Interviewer, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -22,7 +23,6 @@ class InterviewerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interviewer
         fields = '__all__'
-
 
 
 class GetInterviewerSlotSerializer(serializers.Serializer):

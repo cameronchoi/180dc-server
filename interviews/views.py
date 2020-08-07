@@ -5,8 +5,9 @@ from rest_framework import status
 
 from django.db.models import F
 
-from .models import *
-from .serializers import *
+from .models import Interviewer, Interviewee, InterviewData
+from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
+    GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer
 
 
 @api_view(['GET'])
