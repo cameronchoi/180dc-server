@@ -37,10 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'corsheaders',  # for allowing cross origin resource sharing for development
-
     'rest_framework',  # for api
-
-    'interviews',
+    'rest_framework.authtoken',
+    'dj_rest_auth',  # for authentication
+    'interviews',  # actual application
 ]
 
 REST_FRAMEWORK = {
