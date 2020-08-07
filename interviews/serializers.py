@@ -21,7 +21,10 @@ class IntervieweeSerializer(serializers.ModelSerializer):
     class Meta:
         fields = [
             'user',
-            'personal_info',
+            'degree_one',
+            'degree_two',
+            'major_one',
+            'major_two',
             'digital_impact',
             'previous_score',
         ]
@@ -40,7 +43,10 @@ class InterviewerSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
             'user',
-            'personal_info',
+            'degree_one',
+            'degree_two',
+            'major_one',
+            'major_two',
             'digital_impact',
         )
         model = Interviewer

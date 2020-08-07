@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http.response import JsonResponse
 from rest_framework import generics
 from rest_framework.decorators import api_view
@@ -117,11 +116,11 @@ def interviewee_slot_list(request):
                             }
                             return JsonResponse(response, status=status.HTTP_201_CREATED)
                     except:
-                        response = {'errors': 'try/catch'}
+                        response = {'errors': 'try/catch'}  # temp error response
                         return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
             # if we exit the for loop we didn't find anything
-            response = {'errors': 'exit for loop'}
+            response = {'errors': 'exit for loop'}  # temp error response
             return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
         else:
             return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
