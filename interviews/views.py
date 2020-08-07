@@ -42,15 +42,26 @@ def login_view(request):
 @permission_classes([IsAuthenticated])
 def interviewee_details(request):
     if request.method == 'GET':
-        interviewee = Interviewee.objects.get(user__first_name='John')
-        interviewee_serializer = IntervieweeSerializer(interviewee)
-        return JsonResponse(interviewee_serializer.data)
+        try:
+            interviewee = Interviewee.objects.get(user=request.user)
+            interviewee_serializer = IntervieweeSerializer(interviewee)
+            return JsonResponse(interviewee_serializer.data)
+        except ObjectDoesNotExist:
+            response = {'errors': "user isn't an interviewee"}
+            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def interviewer_details(request):
+    # first check if user is an interviewer
+    try:
+        interviewer = Interviewer.objects.get(user=request.user)
+    except ObjectDoesNotExist:
+        response = {'errors': "user isn't an interviewer"}
+        return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
     if request.method == 'GET':
-        interviewer = Interviewer.objects.get(user__first_name='Jane')
         interviewer_serializer = InterviewerSerializer(interviewer)
         return JsonResponse(interviewer_serializer.data)
 
