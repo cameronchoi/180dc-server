@@ -1,5 +1,4 @@
 from django.http.response import JsonResponse
-from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from rest_framework import status
@@ -10,38 +9,22 @@ from .models import *
 from .serializers import *
 
 
-# class based views
-class ListInterviewer(generics.ListCreateAPIView):
-    queryset = Interviewer.objects.all()
-    serializer_class = InterviewerSerializer
+@api_view(['GET'])
+def interviewee_details(request):
+    if request.method == 'GET':
+        interviewee = Interviewee.objects.get(user__first_name='John')
+        interviewee_serializer = IntervieweeSerializer(interviewee)
+        return JsonResponse(interviewee_serializer.data)
 
 
-class DetailInterviewer(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Interviewer.objects.all()
-    serializer_class = InterviewerSerializer
+@api_view(['GET'])
+def interviewer_details(request):
+    if request.method == 'GET':
+        interviewer = Interviewer.objects.get(user__first_name='Jane')
+        interviewer_serializer = InterviewerSerializer(interviewer)
+        return JsonResponse(interviewer_serializer.data)
 
 
-class ListInterviewee(generics.ListCreateAPIView):
-    queryset = Interviewee.objects.all()
-    serializer_class = IntervieweeSerializer
-
-
-class DetailInterviewee(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Interviewee.objects.all()
-    serializer_class = IntervieweeSerializer
-
-
-class ListInterviewData(generics.ListCreateAPIView):
-    queryset = InterviewData.objects.all()
-    serializer_class = InterviewDataSerializer
-
-
-class DetailInterviewData(generics.RetrieveUpdateDestroyAPIView):
-    queryset = InterviewData.objects.all()
-    serializer_class = InterviewDataSerializer
-
-
-# other views
 @api_view(['GET', 'POST'])
 def interviewer_slot_list(request):
     if request.method == 'GET':

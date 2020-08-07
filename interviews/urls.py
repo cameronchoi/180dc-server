@@ -17,8 +17,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('api/interviewee', views.ListInterviewee.as_view()),
-    path('api/interviewee/<int:pk>', views.DetailInterviewee.as_view()),
+    # path('api/interviewee', views.ListInterviewee.as_view()),
+    # path('api/interviewee/<int:pk>', views.DetailInterviewee.as_view()),
+    path('api/interviewee', views.interviewee_details),
+    path('api/interviewer', views.interviewer_details),
     path('api/interviewertimes', views.interviewer_slot_list),
     path('api/intervieweetimes', views.interviewee_slot_list),
 ]
