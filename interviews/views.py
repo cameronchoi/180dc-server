@@ -92,6 +92,7 @@ def interview_details(request):
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def interviewer_slot_list(request):
+    # GET request is a list of available times that interviewers can submit to
     if request.method == 'GET':
         interview_slots = InterviewData.objects.all().filter(
             current_interviewers__lt=F('max_interviewers'))
@@ -100,19 +101,30 @@ def interviewer_slot_list(request):
             interview_slots, many=True)
         return JsonResponse(interviewer_slot_serializer.data, safe=False)
 
+    # POST request receives a list of chosen times
+    # and returns their allocation(s)
+    # NB interviewers can have multiple allocations as long as they don't clash
+    # resubmissions will just reset old times and reallocate
     elif request.method == 'POST':
+        # parse and generate serializer
         interviewer_slot_data = JSONParser().parse(request)
         interviewer_slot_serializer = InterviewTimeslotSerializer(
             data=interviewer_slot_data)
         if interviewer_slot_serializer.is_valid():
+            interviewer = Interviewer.objects.get(user=request.user)  # get model for current user
+
+            # if interviewer already has times, nuke all their old times
+            old_interview_slots = InterviewData.objects.filter(interviewers=interviewer)
+            for old_interview_slot in old_interview_slots:
+                old_interview_slot.interviewers.remove(interviewer)
+
+            # pull all available times
             for timeslot in interviewer_slot_serializer.data['availableTimes']:
-                interviewer = Interviewer.objects.get(user=request.user)
                 interview_slot = InterviewData.objects.get(datetime=timeslot)
 
-                # check if there's space
+                # assign slot if there's space
                 if interview_slot.current_interviewers < interview_slot.max_interviewers:
-                    # general try catch for now
-                    try:
+                    try:  # general try catch for now
                         interview_slot.interviewers.add(interviewer)
                         interview_slot.current_interviewers += 1
                         interview_slot.save()
@@ -125,6 +137,7 @@ def interviewer_slot_list(request):
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def interviewee_slot_list(request):
+    # GET request is a list of available times that interviewees can submit to
     if request.method == 'GET':
         interview_slots = InterviewData.objects.all().filter(
             current_interviewees__lt=F('max_interviewees')
@@ -134,23 +147,35 @@ def interviewee_slot_list(request):
             interview_slots, many=True)
         return JsonResponse(interviewee_slot_serializer.data, safe=False)
 
+    # POST request receives a list of chosen times
+    # and returns their allocation
+    # NB interviewees can only have 1 allocated time, so a redo will delete old allocation and reallocate
+    # atm not implemented, 1 submission = 1 time
     elif request.method == 'POST':
+        # parse and generate serializer
         interviewee_slot_data = JSONParser().parse(request)
         interviewee_slot_serializer = InterviewTimeslotSerializer(
             data=interviewee_slot_data)
         if interviewee_slot_serializer.is_valid():
+            interviewee = Interviewee.objects.get(user=request.user)  # get model for current user
+
+            # if interviewee already has times, nuke all their old times
+            old_interview_slots = InterviewData.objects.filter(interviewees=interviewee)
+            for old_interview_slot in old_interview_slots:
+                old_interview_slot.interviewees.remove(interviewee)
+
+            # pull all available times
             for timeslot in interviewee_slot_serializer.data['availableTimes']:
                 interview_slot = InterviewData.objects.get(datetime=timeslot)
 
                 # check if there's space
                 if interview_slot.current_interviewees < interview_slot.max_interviewees:
-                    interviewee = Interviewee.objects.get(user=request.user)
-
-                    try:
+                    try:  # general try catch for now
                         interview_slot.interviewees.add(interviewee)
                         interview_slot.current_interviewees += 1
                         interview_slot.save()
 
+                        # generate appropriate response (if room has been set already or not)
                         if interview_slot.room is not None:
                             response = {
                                 'interviewTime': timeslot,
