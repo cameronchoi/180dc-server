@@ -106,10 +106,10 @@ def interviewer_slot_list(request):
             data=interviewer_slot_data)
         if interviewer_slot_serializer.is_valid():
             for timeslot in interviewer_slot_serializer.data['availableTimes']:
-                interviewer = Interviewer.objects.get(user__first_name='Jane')
+                interviewer = Interviewer.objects.get(user=request.user)
                 interview_slot = InterviewData.objects.get(datetime=timeslot)
 
-                # check if got space
+                # check if there's space
                 if interview_slot.current_interviewers < interview_slot.max_interviewers:
                     # general try catch for now
                     try:
@@ -142,10 +142,9 @@ def interviewee_slot_list(request):
             for timeslot in interviewee_slot_serializer.data['availableTimes']:
                 interview_slot = InterviewData.objects.get(datetime=timeslot)
 
-                # if there's space
+                # check if there's space
                 if interview_slot.current_interviewees < interview_slot.max_interviewees:
-                    interviewee = Interviewee.objects.get(
-                        user__first_name='John')
+                    interviewee = Interviewee.objects.get(user=request.user)
 
                     try:
                         interview_slot.interviewees.add(interviewee)
