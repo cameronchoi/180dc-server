@@ -1,4 +1,5 @@
 from django.http.response import JsonResponse
+from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.decorators import api_view, permission_classes
@@ -9,6 +10,8 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.authtoken.models import Token
 
 from django.db.models import F
+
+import csv
 
 from .models import Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
@@ -197,3 +200,77 @@ def interviewee_slot_list(request):
             return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
         else:
             return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# outputs a csv of all interviewees
+def csv_interviewees(request):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="interviewee_list.csv"'
+
+    writer = csv.writer(response)
+    test = ['First Name', 'Last Name', 'Interview Slot(s)', 'Digital Impact']
+    writer.writerow(test)
+
+    for interviewee in Interviewee.objects.all():
+        interview_slots = []
+
+        for interview_slot in interviewee.interviewdata_set.all():
+            interview_data = [
+                interview_slot.datetime.strftime("%d/%m/%y,%H:%M"),
+                interview_slot.room
+            ]
+            interview_slots.append(interview_data)
+
+        if interviewee.digital_impact is True:
+            digital_impact = "True"
+        else:
+            digital_impact = "False"
+
+        row = [
+            interviewee.user.first_name,
+            interviewee.user.last_name,
+            interview_slots,
+            digital_impact,
+        ]
+
+        writer.writerow(row)
+
+    return response
+
+
+# outputs a csv of all interviewees
+def csv_interviewers(request):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="interviewer_list.csv"'
+
+    writer = csv.writer(response)
+    test = ['First Name', 'Last Name', 'Interview Slot(s)', 'Digital Impact']
+    writer.writerow(test)
+
+    for interviewer in Interviewer.objects.all():
+        interview_slots = []
+
+        for interview_slot in interviewer.interviewdata_set.all():
+            interview_data = [
+                interview_slot.datetime.strftime("%d/%m/%y,%H:%M"),
+                interview_slot.room
+            ]
+            interview_slots.append(interview_data)
+
+        if interviewer.digital_impact is True:
+            digital_impact = "True"
+        else:
+            digital_impact = "False"
+
+        row = [
+            interviewer.user.first_name,
+            interviewer.user.last_name,
+            interview_slots,
+            digital_impact,
+        ]
+
+        writer.writerow(row)
+
+    return response

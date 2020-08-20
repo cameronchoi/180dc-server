@@ -23,4 +23,7 @@ urlpatterns = [
     path('api/interviewertimes', views.interviewer_slot_list),
     path('api/intervieweetimes', views.interviewee_slot_list),
     path('api/interviewtimes', views.interview_details),
+
+    path('csv/interviewees', views.csv_interviewees),
+    path('csv/interviewers', views.csv_interviewers),
 ]
