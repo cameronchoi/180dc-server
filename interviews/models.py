@@ -2,7 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-# Create your models here.
+# extra "global" variables
+class Options(models.Model):
+    # fields
+    interviewer_closed = models.BooleanField(default=False)
+
+
+# 1 interviewer = 1 user
 class Interviewer(models.Model):
     # fields
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)  # one user to one interviewer
@@ -23,6 +29,7 @@ class Interviewer(models.Model):
             return "None"
 
 
+# 1 interviewee = 1 user
 class Interviewee(models.Model):
     # fields
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)  # one user to one interviwee
@@ -43,6 +50,7 @@ class Interviewee(models.Model):
             return "None"
 
 
+# each interview slot
 class InterviewData(models.Model):
     datetime = models.DateTimeField()
     interviewers = models.ManyToManyField(Interviewer, blank=True)

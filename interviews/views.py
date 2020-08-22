@@ -13,7 +13,7 @@ from django.db.models import F
 
 import csv
 
-from .models import Interviewer, Interviewee, InterviewData
+from .models import Options, Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
     GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer
 
@@ -109,41 +109,48 @@ def interviewer_slot_list(request):
     # NB interviewers can have multiple allocations as long as they don't clash
     # resubmissions will just reset old times and reallocate
     elif request.method == 'POST':
-        # parse and generate serializer
-        interviewer_slot_data = JSONParser().parse(request)
-        interviewer_slot_serializer = InterviewTimeslotSerializer(
-            data=interviewer_slot_data)
-        if interviewer_slot_serializer.is_valid():
-            interviewer = Interviewer.objects.get(user=request.user)  # get model for current user
+        # check if interviewer "applications" are closed
+        if Options.interviewer_closed is False:
+            # parse and generate serializer
+            interviewer_slot_data = JSONParser().parse(request)
+            interviewer_slot_serializer = InterviewTimeslotSerializer(
+                data=interviewer_slot_data)
+            if interviewer_slot_serializer.is_valid():
+                interviewer = Interviewer.objects.get(user=request.user)  # get model for current user
 
-            # if interviewer already has times, nuke all their old times
-            old_interview_slots = InterviewData.objects.filter(interviewers=interviewer)
-            for old_interview_slot in old_interview_slots:
-                old_interview_slot.current_interviewers -= 1
-                old_interview_slot.interviewers.remove(interviewer)
+                # if interviewer already has times, nuke all their old times
+                old_interview_slots = InterviewData.objects.filter(interviewers=interviewer)
+                for old_interview_slot in old_interview_slots:
+                    old_interview_slot.current_interviewers -= 1
+                    old_interview_slot.interviewers.remove(interviewer)
 
-            # setup number of assigned interviews
-            interview_count = 0
+                # setup number of assigned interviews
+                interview_count = 0
 
-            # pull all available times
-            for timeslot in interviewer_slot_serializer.data['availableTimes']:
-                interview_slot = InterviewData.objects.get(datetime=timeslot)
+                # pull all available times
+                for timeslot in interviewer_slot_serializer.data['availableTimes']:
+                    interview_slot = InterviewData.objects.get(datetime=timeslot)
 
-                # assign slot if there's space and max assigned interviews not hit yet
-                if (
-                        interview_slot.current_interviewers < interview_slot.max_interviewers
-                ) and (
-                        interview_count < interviewer.max_interviews
-                ):
-                    try:  # general try catch for now
-                        interview_slot.interviewers.add(interviewer)
-                        interview_slot.current_interviewers += 1
-                        interview_slot.save()
-                        interview_count += 1
-                    except:
-                        pass
-            return JsonResponse(interviewer_slot_serializer.data, status=status.HTTP_201_CREATED)
-        return JsonResponse(interviewer_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    # assign slot if there's space and max assigned interviews not hit yet
+                    if (
+                            interview_slot.current_interviewers < interview_slot.max_interviewers
+                    ) and (
+                            interview_count < interviewer.max_interviews
+                    ):
+                        try:  # general try catch for now
+                            interview_slot.interviewers.add(interviewer)
+                            interview_slot.current_interviewers += 1
+                            interview_slot.save()
+                            interview_count += 1
+                        except:
+                            pass
+                return JsonResponse(interviewer_slot_serializer.data, status=status.HTTP_201_CREATED)
+            return JsonResponse(interviewer_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            response = {'errors': 'interviewer applications closed'}
+            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['GET', 'POST'])
