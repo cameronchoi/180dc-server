@@ -47,3 +47,9 @@ class InterviewTimeslotSerializer(serializers.Serializer):
     availableTimes = serializers.ListField(
         child=serializers.DateTimeField()
     )
+
+
+# serializer for password change
+class PasswordChangeSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)

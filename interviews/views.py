@@ -216,6 +216,28 @@ def interviewee_slot_list(request):
             return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# API view for changing password
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    if request.method == 'POST':
+        # parse and generate serializer
+        password_data = JSONParser().parse(request)
+        password_data_serializer = PasswordChangeSerializer(data=password_data)
+
+        if password_data_serializer.is_valid():
+            # check if old password matches
+            if request.user.check_password(password_data_serializer.data['old_password']) is True:
+                # if it does then set new password
+                request.user.set_password(password_data_serializer.data['new_password'])
+                response = {'status': 'success'}
+                return JsonResponse(response)
+            else:
+                # if old password is wrong don't change password
+                response = {'errors': 'old password incorrect'}
+                return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
+
 # outputs a csv of all interviewees
 def csv_interviewees(request):
     # Create the HttpResponse object with the appropriate CSV header.
