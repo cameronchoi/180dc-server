@@ -119,6 +119,7 @@ def interviewer_slot_list(request):
             # if interviewer already has times, nuke all their old times
             old_interview_slots = InterviewData.objects.filter(interviewers=interviewer)
             for old_interview_slot in old_interview_slots:
+                old_interview_slot.current_interviewers -= 1
                 old_interview_slot.interviewers.remove(interviewer)
 
             # pull all available times
@@ -165,6 +166,7 @@ def interviewee_slot_list(request):
             # if interviewee already has times, nuke all their old times
             old_interview_slots = InterviewData.objects.filter(interviewees=interviewee)
             for old_interview_slot in old_interview_slots:
+                old_interview_slot.current_interviewees -= 1
                 old_interview_slot.interviewees.remove(interviewee)
 
             # pull all available times
