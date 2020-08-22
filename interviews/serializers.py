@@ -53,3 +53,8 @@ class InterviewTimeslotSerializer(serializers.Serializer):
 class PasswordChangeSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+
+
+# serializer for password reset
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)

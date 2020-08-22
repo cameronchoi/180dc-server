@@ -1,6 +1,7 @@
 from django.http.response import JsonResponse
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.forms import PasswordResetForm
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.parsers import JSONParser
@@ -15,7 +16,8 @@ import csv
 
 from .models import Options, Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
-    GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer, PasswordChangeSerializer
+    GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer, \
+    PasswordChangeSerializer, PasswordResetSerializer
 
 
 @api_view(['POST'])
@@ -236,6 +238,35 @@ def change_password(request):
                 # if old password is wrong don't change password
                 response = {'errors': 'old password incorrect'}
                 return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return JsonResponse(password_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# API view for resetting password
+# doesn't work rn
+@api_view(['POST'])
+def reset_password(request):
+    if request.method == 'POST':
+        # parse and generate serializer
+        email_data = JSONParser().parse(request)
+        email_data_serializer = PasswordResetSerializer(data=email_data)
+
+        if email_data_serializer.is_valid():
+            password_reset_form = PasswordResetForm(data=email_data_serializer.data)
+            print(email_data_serializer.data)
+            if password_reset_form.is_valid():
+                password_reset_form.save(domain_override="testdomain.com")
+                response = {'status': 'success'}
+                return JsonResponse(response)
+            else:
+                return JsonResponse(password_reset_form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            return JsonResponse(email_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def reset_password_confirm(request, uidb64, token):
+    return
 
 
 # outputs a csv of all interviewees
