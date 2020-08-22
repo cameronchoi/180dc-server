@@ -15,7 +15,7 @@ import csv
 
 from .models import Options, Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
-    GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer
+    GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer, PasswordChangeSerializer
 
 
 @api_view(['POST'])
@@ -113,8 +113,7 @@ def interviewer_slot_list(request):
         if Options.interviewer_closed is False:
             # parse and generate serializer
             interviewer_slot_data = JSONParser().parse(request)
-            interviewer_slot_serializer = InterviewTimeslotSerializer(
-                data=interviewer_slot_data)
+            interviewer_slot_serializer = InterviewTimeslotSerializer(data=interviewer_slot_data)
             if interviewer_slot_serializer.is_valid():
                 interviewer = Interviewer.objects.get(user=request.user)  # get model for current user
 
@@ -152,7 +151,6 @@ def interviewer_slot_list(request):
             return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def interviewee_slot_list(request):
@@ -173,8 +171,7 @@ def interviewee_slot_list(request):
     elif request.method == 'POST':
         # parse and generate serializer
         interviewee_slot_data = JSONParser().parse(request)
-        interviewee_slot_serializer = InterviewTimeslotSerializer(
-            data=interviewee_slot_data)
+        interviewee_slot_serializer = InterviewTimeslotSerializer(data=interviewee_slot_data)
         if interviewee_slot_serializer.is_valid():
             interviewee = Interviewee.objects.get(user=request.user)  # get model for current user
 
