@@ -52,7 +52,7 @@ class Command(BaseCommand):
                 user.save()
             except User.DoesNotExist:
                 # create User objects
-                user = User.objects.create_user(row['Email'], row['Email'], row['Password'])
+                user = User.objects.create_user(row['Email'].lower(), row['Email'], row['Password'])
                 user.first_name = row['First Name']
                 user.last_name = row['Last Name']
                 user.save()
