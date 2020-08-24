@@ -17,7 +17,7 @@ import csv
 from .models import Option, Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
     GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer, \
-    PasswordChangeSerializer, PasswordResetSerializer
+    PasswordChangeSerializer, PasswordResetSerializer, InterviewerRegisterSerializer
 
 
 @api_view(['POST'])
@@ -229,6 +229,31 @@ def interviewee_slot_list(request):
             return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
         else:
             return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# API view for updating if interviewers can submit or not
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def interviewer_open(request):
+    if request.method == 'GET':
+        interviewer_option = Option.objects.get(name="interviewer_register")
+        if interviewer_option is True:
+            response = {'interviewer_registration_open': True}
+        else:
+            response = {'interviewer_registration_open': False}
+        return JsonResponse(response)
+    elif request.method == 'POST':
+        interviewer_register_data = JSONParser().parse(request)
+        interviewer_register_data_serializer = InterviewerRegisterSerializer(data=interviewer_register_data)
+        interviewer_option = Option.objects.get(name="interviewer_register")
+        if interviewer_register_data_serializer.data['interviewer_registration_open'] is True:
+            interviewer_option.option = True
+            interviewer_option.save()
+        else:
+            interviewer_option.option = False
+            interviewer_option.save()
+        response = {'status': 'success'}
+        return JsonResponse(response)
 
 
 # API view for changing password
