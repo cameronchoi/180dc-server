@@ -14,7 +14,7 @@ from django.db.models import F
 
 import csv
 
-from .models import Options, Interviewer, Interviewee, InterviewData
+from .models import Option, Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
     GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer, \
     PasswordChangeSerializer, PasswordResetSerializer
@@ -112,7 +112,8 @@ def interviewer_slot_list(request):
     # resubmissions will just reset old times and reallocate
     elif request.method == 'POST':
         # check if interviewer "applications" are closed
-        if Options.interviewer_closed is False:
+        interviewer_option = Option.objects.get(name="interviewer_register")
+        if interviewer_option.option is True:
             # parse and generate serializer
             interviewer_slot_data = JSONParser().parse(request)
             interviewer_slot_serializer = InterviewTimeslotSerializer(data=interviewer_slot_data)

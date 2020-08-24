@@ -3,9 +3,14 @@ from django.contrib.auth.models import User
 
 
 # extra "global" variables
-class Options(models.Model):
+class Option(models.Model):
     # fields
-    interviewer_closed = models.BooleanField(default=False)
+    name = models.CharField(max_length=150)
+    description = models.TextField()
+    option = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "%s" % self.description
 
 
 # 1 interviewer = 1 user
