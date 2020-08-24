@@ -38,7 +38,8 @@ def login_view(request):
 
         response = {
             'token': token.key,
-            'position': position
+            'position': position,
+            'is_staff': user.is_staff
         }
         return JsonResponse(response)
 
@@ -86,11 +87,14 @@ def interview_details(request):
 
         # now get all relevant interview data
         if interviewer:
-            interview_data = InterviewData.objects.filter(interviewers__user=request.user)
+            interview_data = InterviewData.objects.filter(
+                interviewers__user=request.user)
         else:
-            interview_data = InterviewData.objects.filter(interviewees__user=request.user)
+            interview_data = InterviewData.objects.filter(
+                interviewees__user=request.user)
 
-        interview_details_serializer = GetInterviewDetailsSerializer(interview_data, many=True)
+        interview_details_serializer = GetInterviewDetailsSerializer(
+            interview_data, many=True)
         return JsonResponse(interview_details_serializer.data, safe=False)
 
 
@@ -116,12 +120,15 @@ def interviewer_slot_list(request):
         if interviewer_option.option is True:
             # parse and generate serializer
             interviewer_slot_data = JSONParser().parse(request)
-            interviewer_slot_serializer = InterviewTimeslotSerializer(data=interviewer_slot_data)
+            interviewer_slot_serializer = InterviewTimeslotSerializer(
+                data=interviewer_slot_data)
             if interviewer_slot_serializer.is_valid():
-                interviewer = Interviewer.objects.get(user=request.user)  # get model for current user
+                interviewer = Interviewer.objects.get(
+                    user=request.user)  # get model for current user
 
                 # if interviewer already has times, nuke all their old times
-                old_interview_slots = InterviewData.objects.filter(interviewers=interviewer)
+                old_interview_slots = InterviewData.objects.filter(
+                    interviewers=interviewer)
                 for old_interview_slot in old_interview_slots:
                     old_interview_slot.current_interviewers -= 1
                     old_interview_slot.interviewers.remove(interviewer)
@@ -132,7 +139,8 @@ def interviewer_slot_list(request):
 
                 # pull all available times
                 for timeslot in interviewer_slot_serializer.data['availableTimes']:
-                    interview_slot = InterviewData.objects.get(datetime=timeslot)
+                    interview_slot = InterviewData.objects.get(
+                        datetime=timeslot)
 
                     # assign slot if there's space and max assigned interviews not hit yet
                     if (
@@ -185,12 +193,15 @@ def interviewee_slot_list(request):
     elif request.method == 'POST':
         # parse and generate serializer
         interviewee_slot_data = JSONParser().parse(request)
-        interviewee_slot_serializer = InterviewTimeslotSerializer(data=interviewee_slot_data)
+        interviewee_slot_serializer = InterviewTimeslotSerializer(
+            data=interviewee_slot_data)
         if interviewee_slot_serializer.is_valid():
-            interviewee = Interviewee.objects.get(user=request.user)  # get model for current user
+            interviewee = Interviewee.objects.get(
+                user=request.user)  # get model for current user
 
             # if interviewee already has times, nuke all their old times
-            old_interview_slots = InterviewData.objects.filter(interviewees=interviewee)
+            old_interview_slots = InterviewData.objects.filter(
+                interviewees=interviewee)
             for old_interview_slot in old_interview_slots:
                 old_interview_slot.current_interviewees -= 1
                 old_interview_slot.interviewees.remove(interviewee)
@@ -221,7 +232,8 @@ def interviewee_slot_list(request):
                             }
                             return JsonResponse(response, status=status.HTTP_201_CREATED)
                     except:
-                        response = {'errors': 'try/catch'}  # temp error response
+                        # temp error response
+                        response = {'errors': 'try/catch'}
                         return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
             # if we exit the for loop we didn't find anything
@@ -244,7 +256,8 @@ def interviewer_open(request):
         return JsonResponse(response)
     elif request.method == 'POST':
         interviewer_register_data = JSONParser().parse(request)
-        interviewer_register_data_serializer = InterviewerRegisterSerializer(data=interviewer_register_data)
+        interviewer_register_data_serializer = InterviewerRegisterSerializer(
+            data=interviewer_register_data)
         interviewer_option = Option.objects.get(name="interviewer_register")
         if interviewer_register_data_serializer.is_valid():
             if interviewer_register_data_serializer.data['interviewer_registration_open'] is True:
@@ -272,7 +285,8 @@ def change_password(request):
             # check if old password matches
             if request.user.check_password(password_data_serializer.data['old_password']) is True:
                 # if it does then set new password
-                request.user.set_password(password_data_serializer.data['new_password'])
+                request.user.set_password(
+                    password_data_serializer.data['new_password'])
                 request.user.save()
                 response = {'status': 'success'}
                 return JsonResponse(response)
@@ -294,7 +308,8 @@ def reset_password(request):
         email_data_serializer = PasswordResetSerializer(data=email_data)
 
         if email_data_serializer.is_valid():
-            password_reset_form = PasswordResetForm(data=email_data_serializer.data)
+            password_reset_form = PasswordResetForm(
+                data=email_data_serializer.data)
             print(email_data_serializer.data)
             if password_reset_form.is_valid():
                 password_reset_form.save(domain_override="testdomain.com")
