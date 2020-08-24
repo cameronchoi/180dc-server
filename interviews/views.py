@@ -124,6 +124,7 @@ def interviewer_slot_list(request):
                 for old_interview_slot in old_interview_slots:
                     old_interview_slot.current_interviewers -= 1
                     old_interview_slot.interviewers.remove(interviewer)
+                    old_interview_slot.save()
 
                 # setup number of assigned interviews
                 interview_count = 0
@@ -192,6 +193,7 @@ def interviewee_slot_list(request):
             for old_interview_slot in old_interview_slots:
                 old_interview_slot.current_interviewees -= 1
                 old_interview_slot.interviewees.remove(interviewee)
+                old_interview_slot.save()
 
             # pull all available times
             for timeslot in interviewee_slot_serializer.data['availableTimes']:
