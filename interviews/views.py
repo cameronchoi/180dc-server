@@ -164,6 +164,14 @@ def interviewee_slot_list(request):
             current_interviewers__exact=F('max_interviewers')
         )
 
+        if hasattr(request.user, 'interviewee'):
+            interview_slots.filter(
+                digital_impact__exact=request.user.interviewee.digital_impact
+            )
+        else:
+            response = {'errors': "current user isn't an interviewee"}
+            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
         interviewee_slot_serializer = GetIntervieweeSlotSerializer(
             interview_slots, many=True)
         return JsonResponse(interviewee_slot_serializer.data, safe=False)
