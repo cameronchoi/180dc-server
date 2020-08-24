@@ -6,7 +6,7 @@ from django.contrib.auth.forms import PasswordResetForm
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.parsers import JSONParser
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.authtoken.models import Token
 
@@ -233,7 +233,7 @@ def interviewee_slot_list(request):
 
 # API view for updating if interviewers can submit or not
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminUser])
 def interviewer_open(request):
     if request.method == 'GET':
         interviewer_option = Option.objects.get(name="interviewer_register")
