@@ -57,7 +57,7 @@ def interviewee_details(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
 def interviewer_details(request):
     if request.method == 'GET':
         # first check if user is an interviewer
