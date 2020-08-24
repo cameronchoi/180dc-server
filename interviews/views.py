@@ -106,6 +106,14 @@ def interviewer_slot_list(request):
         interview_slots = InterviewData.objects.all().filter(
             current_interviewers__lt=F('max_interviewers'))
 
+        if hasattr(request.user, 'interviewer'):
+            interview_slots = interview_slots.filter(
+                digital_impact=request.user.interviewer.digital_impact
+            )
+        else:
+            response = {'errors': "current user isn't an interviewer"}
+            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
         interviewer_slot_serializer = GetInterviewerSlotSerializer(
             interview_slots, many=True)
         return JsonResponse(interviewer_slot_serializer.data, safe=False)
