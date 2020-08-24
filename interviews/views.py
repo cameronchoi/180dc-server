@@ -134,9 +134,6 @@ def interviewer_slot_list(request):
                     old_interview_slot.interviewers.remove(interviewer)
                     old_interview_slot.save()
 
-                # setup number of assigned interviews
-                interview_count = 0
-
                 # pull all available times
                 for timeslot in interviewer_slot_serializer.data['availableTimes']:
                     interview_slot = InterviewData.objects.get(
@@ -145,14 +142,11 @@ def interviewer_slot_list(request):
                     # assign slot if there's space and max assigned interviews not hit yet
                     if (
                             interview_slot.current_interviewers < interview_slot.max_interviewers
-                    ) and (
-                            interview_count < interviewer.max_interviews
                     ):
                         try:  # general try catch for now
                             interview_slot.interviewers.add(interviewer)
                             interview_slot.current_interviewers += 1
                             interview_slot.save()
-                            interview_count += 1
                         except:
                             pass
                 return JsonResponse(interviewer_slot_serializer.data, status=status.HTTP_201_CREATED)
