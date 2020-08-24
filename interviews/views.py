@@ -232,6 +232,7 @@ def change_password(request):
             if request.user.check_password(password_data_serializer.data['old_password']) is True:
                 # if it does then set new password
                 request.user.set_password(password_data_serializer.data['new_password'])
+                request.user.save()
                 response = {'status': 'success'}
                 return JsonResponse(response)
             else:
