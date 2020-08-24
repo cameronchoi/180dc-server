@@ -158,15 +158,15 @@ def interviewer_slot_list(request):
 def interviewee_slot_list(request):
     # GET request is a list of available times that interviewees can submit to
     if request.method == 'GET':
-        interview_slots = InterviewData.objects.all().filter(
+        interview_slots = InterviewData.objects.filter(
             current_interviewees__lt=F('max_interviewees')
         ).filter(
             current_interviewers__exact=F('max_interviewers')
         )
 
         if hasattr(request.user, 'interviewee'):
-            interview_slots.filter(
-                digital_impact__exact=request.user.interviewee.digital_impact
+            interview_slots = interview_slots.filter(
+                digital_impact=request.user.interviewee.digital_impact
             )
         else:
             response = {'errors': "current user isn't an interviewee"}
