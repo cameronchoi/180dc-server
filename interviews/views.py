@@ -246,14 +246,17 @@ def interviewer_open(request):
         interviewer_register_data = JSONParser().parse(request)
         interviewer_register_data_serializer = InterviewerRegisterSerializer(data=interviewer_register_data)
         interviewer_option = Option.objects.get(name="interviewer_register")
-        if interviewer_register_data_serializer.data['interviewer_registration_open'] is True:
-            interviewer_option.option = True
-            interviewer_option.save()
+        if interviewer_register_data_serializer.is_valid():
+            if interviewer_register_data_serializer.data['interviewer_registration_open'] is True:
+                interviewer_option.option = True
+                interviewer_option.save()
+            else:
+                interviewer_option.option = False
+                interviewer_option.save()
+            response = {'status': 'success'}
+            return JsonResponse(response)
         else:
-            interviewer_option.option = False
-            interviewer_option.save()
-        response = {'status': 'success'}
-        return JsonResponse(response)
+            return JsonResponse(interviewer_register_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # API view for changing password
