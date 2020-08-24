@@ -43,7 +43,7 @@ class Interviewee(models.Model):
     major_one = models.CharField(max_length=150, blank=True)
     major_two = models.CharField(max_length=150, blank=True)
     digital_impact = models.BooleanField(default=False)  # false = strategy
-    previous_score = models.IntegerField()
+    previous_score = models.IntegerField(null=True, blank=True)
 
     class Meta:
         ordering = ['user']
