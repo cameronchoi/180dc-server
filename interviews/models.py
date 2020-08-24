@@ -21,7 +21,7 @@ class Interviewer(models.Model):
     degree_two = models.CharField(max_length=150, blank=True)
     major_one = models.CharField(max_length=150, blank=True)
     major_two = models.CharField(max_length=150, blank=True)
-    max_interviews = models.IntegerField()
+    max_interviews = models.IntegerField(blank=True, null=True)
     digital_impact = models.BooleanField(default=False)  # false = strategy
 
     class Meta:
