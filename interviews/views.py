@@ -237,7 +237,7 @@ def interviewee_slot_list(request):
 def interviewer_open(request):
     if request.method == 'GET':
         interviewer_option = Option.objects.get(name="interviewer_register")
-        if interviewer_option is True:
+        if interviewer_option.option is True:
             response = {'interviewer_registration_open': True}
         else:
             response = {'interviewer_registration_open': False}

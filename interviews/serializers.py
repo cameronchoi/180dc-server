@@ -51,7 +51,7 @@ class InterviewTimeslotSerializer(serializers.Serializer):
 
 # serializer for interviewer registration option
 class InterviewerRegisterSerializer(serializers.Serializer):
-    option = serializers.BooleanField()
+    interviewer_registration_open = serializers.BooleanField()
 
 
 # serializer for password change
