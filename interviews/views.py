@@ -2,6 +2,7 @@ from django.http.response import JsonResponse
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.forms import PasswordResetForm
+from django.db.models import Q
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.parsers import JSONParser
@@ -104,7 +105,7 @@ def interviewer_slot_list(request):
     # GET request is a list of available times that interviewers can submit to
     if request.method == 'GET':
         interview_slots = InterviewData.objects.all().filter(
-            current_interviewers__lt=F('max_interviewers'))
+            Q(current_interviewers__lt=F('max_interviewers')) | Q(interviewers__user=request.user))
 
         if hasattr(request.user, 'interviewer'):
             interview_slots = interview_slots.filter(
