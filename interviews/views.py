@@ -146,6 +146,7 @@ def interviewer_slot_list(request):
                 # pull all available times
                 for timeslot in interviewer_slot_serializer.data['availableTimes']:
                     interview_slot = InterviewData.objects.get(
+                        digital_impact=request.user.interviewer.digital_impact,
                         datetime=timeslot)
 
                     # assign slot if there's space and max assigned interviews not hit yet
@@ -197,6 +198,7 @@ def interviewee_slot_list(request):
             data=interviewee_slot_data)
         if interviewee_slot_serializer.is_valid():
             interviewee = Interviewee.objects.get(
+                digital_impact=request.user.interviewer.digital_impact,
                 user=request.user)  # get model for current user
 
             # if interviewee already has times, nuke all their old times
