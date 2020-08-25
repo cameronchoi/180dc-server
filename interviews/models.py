@@ -16,7 +16,9 @@ class Option(models.Model):
 # 1 interviewer = 1 user
 class Interviewer(models.Model):
     # fields
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)  # one user to one interviewer
+    # one user to one interviewer
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, primary_key=True)
     degree_one = models.CharField(max_length=150, blank=True)
     degree_two = models.CharField(max_length=150, blank=True)
     major_one = models.CharField(max_length=150, blank=True)
@@ -37,7 +39,9 @@ class Interviewer(models.Model):
 # 1 interviewee = 1 user
 class Interviewee(models.Model):
     # fields
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)  # one user to one interviwee
+    # one user to one interviwee
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, primary_key=True)
     degree_one = models.CharField(max_length=150, blank=True)
     degree_two = models.CharField(max_length=150, blank=True)
     major_one = models.CharField(max_length=150, blank=True)
@@ -64,7 +68,7 @@ class InterviewData(models.Model):
     current_interviewees = models.IntegerField(default=0)
     max_interviewers = models.IntegerField(default=1)
     current_interviewers = models.IntegerField(default=0)
-    room = models.CharField(null=True, blank=True, max_length=50)
+    room = models.CharField(null=True, blank=True, max_length=200)
     digital_impact = models.BooleanField(default=False)  # false = strategy
 
     # unneeded stuff for now
