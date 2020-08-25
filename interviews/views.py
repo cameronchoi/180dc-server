@@ -171,12 +171,8 @@ def interviewer_slot_list(request):
 def interviewee_slot_list(request):
     # GET request is a list of available times that interviewees can submit to
     if request.method == 'GET':
-        interview_slots = InterviewData.objects.filter(
-            Q(current_interviewees__lt=F('max_interviewees')) | Q(
-                interviewees__user=request.user)
-        ).filter(
-            current_interviewers__exact=F('max_interviewers')
-        )
+        interview_slots = InterviewData.objects.filter(current_interviewees__lt=F(
+            'max_interviewees')).filter(current_interviewers__exact=F('max_interviewers'))
 
         if hasattr(request.user, 'interviewee'):
             interview_slots = interview_slots.filter(
