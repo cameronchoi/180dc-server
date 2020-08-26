@@ -205,7 +205,7 @@ def interviewee_slot_list(request):
             data=interviewee_slot_data)
         if interviewee_slot_serializer.is_valid():
             interviewee = Interviewee.objects.get(
-                digital_impact=request.user.interviewer.digital_impact,
+                digital_impact=request.user.interviewee.digital_impact,
                 user=request.user)  # get model for current user
 
             # if interviewee already has times, nuke all their old times
@@ -223,6 +223,7 @@ def interviewee_slot_list(request):
                 # check if there's space
                 if interview_slot.current_interviewees < interview_slot.max_interviewees:
                     try:  # general try catch for now
+                        print("it comes here")
                         interview_slot.interviewees.add(interviewee)
                         interview_slot.current_interviewees += 1
                         interview_slot.save()
