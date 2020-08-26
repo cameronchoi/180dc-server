@@ -144,6 +144,7 @@ def interviewer_slot_list(request):
                     old_interview_slot.save()
 
                 # pull all available times
+                count = 0
                 for timeslot in interviewer_slot_serializer.data['availableTimes']:
                     interview_slot = InterviewData.objects.get(
                         digital_impact=request.user.interviewer.digital_impact,
@@ -154,11 +155,17 @@ def interviewer_slot_list(request):
                             interview_slot.current_interviewers < interview_slot.max_interviewers
                     ):
                         try:  # general try catch for now
+                            count += 1
                             interview_slot.interviewers.add(interviewer)
                             interview_slot.current_interviewers += 1
                             interview_slot.save()
                         except:
                             pass
+
+                if count == 0:
+                    response = {'errors': 'Not allocated a time'}
+                    return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
                 return JsonResponse(interviewer_slot_serializer.data, status=status.HTTP_201_CREATED)
             return JsonResponse(interviewer_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
