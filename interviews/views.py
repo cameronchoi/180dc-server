@@ -247,7 +247,8 @@ def interviewee_slot_list(request):
                         return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
             # if we exit the for loop we didn't find anything
-            response = {'errors': 'exit for loop'}  # temp error response
+            # temp error response
+            response = {'errors': 'Was not able to be allocated'}
             return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
         else:
             return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
