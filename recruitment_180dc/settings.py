@@ -24,7 +24,8 @@ SECRET_KEY = '!mk10jx1_p%v*_#=3)=n(0c$6a3xdo26u^rxfksi4&7z80xb=-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['180dc-eb.eba-t3x2n6gs.ap-southeast-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = [
+    '180dc-eb.eba-t3x2n6gs.ap-southeast-2.elasticbeanstalk.com, 180dcusyd.org, admin.180dcusyd.org']
 
 # Application definition
 
