@@ -25,7 +25,11 @@ SECRET_KEY = '!mk10jx1_p%v*_#=3)=n(0c$6a3xdo26u^rxfksi4&7z80xb=-'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '180dc-eb.eba-t3x2n6gs.ap-southeast-2.elasticbeanstalk.com', '180dcusyd.org', 'admin.180dcusyd.org']
+    '180dc-eb.eba-t3x2n6gs.ap-southeast-2.elasticbeanstalk.com',
+    '180dcusyd.org',
+    'admin.180dcusyd.org',
+    '127.0.0.1'  # for testing!
+]
 
 # Application definition
 
