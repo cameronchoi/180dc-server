@@ -13,6 +13,16 @@ def download_interview_date(modeladmin, request, queryset):
     response['Content-Disposition'] = 'attachment; filename="interviews.csv"'
 
     writer = csv.writer(response)
+    header_row = [
+        'Date',
+        'Time',
+        'Room',
+        'Digital Impact',
+        'Interviewers',
+        'Interviewees'
+    ]
+    writer.writerow(header_row)
+
     for row in interview_data_df.values.tolist():
         writer.writerow(row)
 
