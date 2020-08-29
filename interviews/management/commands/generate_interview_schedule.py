@@ -22,13 +22,18 @@ def generate_interview_data_df():
         # generate interviewee list (of their full names)
         interviewees = []
         for interviewee in interview_data.interviewees.all():
-            full_name = "{} {}".format(interviewee.user.first_name, interviewee.user.last_name)
+            full_name = "{} {}".format(
+                interviewee.user.first_name, interviewee.user.last_name)
             interviewees.append(full_name)
+
+        if(len(interviewees) == 0):
+            continue
 
         # generate interviewer list (of their full names)
         interviewers = []
         for interviewer in interview_data.interviewers.all():
-            full_name = "{} {}".format(interviewer.user.first_name, interviewer.user.last_name)
+            full_name = "{} {}".format(
+                interviewer.user.first_name, interviewer.user.last_name)
             interviewers.append(full_name)
 
         # append to the dataframe

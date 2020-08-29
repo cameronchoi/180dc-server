@@ -146,21 +146,24 @@ def interviewer_slot_list(request):
                 # pull all available times
                 count = 0
                 for timeslot in interviewer_slot_serializer.data['availableTimes']:
-                    interview_slot = InterviewData.objects.get(
+                    interview_slots = InterviewData.objects.filter(
                         digital_impact=request.user.interviewer.digital_impact,
                         datetime=timeslot)
 
-                    # assign slot if there's space and max assigned interviews not hit yet
-                    if (
-                            interview_slot.current_interviewers < interview_slot.max_interviewers
-                    ):
-                        try:  # general try catch for now
-                            count += 1
-                            interview_slot.interviewers.add(interviewer)
-                            interview_slot.current_interviewers += 1
-                            interview_slot.save()
-                        except:
-                            pass
+                    for interview_slot in interview_slots:
+                        # assign slot if there's space and max assigned interviews not hit yet
+                        if (
+                                interview_slot.current_interviewers < interview_slot.max_interviewers
+                        ):
+                            try:  # general try catch for now
+                                count += 1
+                                interview_slot.interviewers.add(interviewer)
+                                interview_slot.current_interviewers += 1
+                                interview_slot.save()
+                                # break to only allocate one spot
+                                break
+                            except:
+                                pass
 
                 if count == 0:
                     response = {'errors': 'Not allocated a time'}
@@ -218,33 +221,37 @@ def interviewee_slot_list(request):
 
             # pull all available times
             for timeslot in interviewee_slot_serializer.data['availableTimes']:
-                interview_slot = InterviewData.objects.get(datetime=timeslot)
+                interview_slots = InterviewData.objects.filter(
+                    datetime=timeslot)
 
-                # check if there's space
-                if interview_slot.current_interviewees < interview_slot.max_interviewees:
-                    try:  # general try catch for now
-                        print("it comes here")
-                        interview_slot.interviewees.add(interviewee)
-                        interview_slot.current_interviewees += 1
-                        interview_slot.save()
+                for interview_slot in interview_slots:
+                    # check if there's space
+                    if interview_slot.current_interviewees < interview_slot.max_interviewees:
+                        try:  # general try catch for now
+                            print("it comes here")
+                            interview_slot.interviewees.add(interviewee)
+                            interview_slot.current_interviewees += 1
+                            interview_slot.save()
 
-                        # generate appropriate response (if room has been set already or not)
-                        if interview_slot.room is not None:
-                            response = {
-                                'interviewTime': timeslot,
-                                'interviewRoom': interview_slot.room
-                            }
-                            return JsonResponse(response, status=status.HTTP_201_CREATED)
-                        else:
-                            response = {
-                                'interviewTime': timeslot,
-                                'interviewRoom': 'Room Not Set'
-                            }
-                            return JsonResponse(response, status=status.HTTP_201_CREATED)
-                    except:
-                        # temp error response
-                        response = {'errors': 'try/catch'}
-                        return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+                            # generate appropriate response (if room has been set already or not)
+                            if interview_slot.room is not None:
+                                response = {
+                                    'interviewTime': timeslot,
+                                    'interviewRoom': interview_slot.room
+                                }
+                                return JsonResponse(response, status=status.HTTP_201_CREATED)
+                            else:
+                                response = {
+                                    'interviewTime': timeslot,
+                                    'interviewRoom': 'Room Not Set'
+                                }
+                                return JsonResponse(response, status=status.HTTP_201_CREATED)
+                            # break to only allocate one spot
+                            break
+                        except:
+                            # temp error response
+                            response = {'errors': 'try/catch'}
+                            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
             # if we exit the for loop we didn't find anything
             # temp error response
