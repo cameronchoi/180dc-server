@@ -222,6 +222,7 @@ def interviewee_slot_list(request):
             # pull all available times
             for timeslot in interviewee_slot_serializer.data['availableTimes']:
                 interview_slots = InterviewData.objects.filter(
+                    digital_impact=request.user.interviewee.digital_impact,
                     datetime=timeslot)
 
                 for interview_slot in interview_slots:
