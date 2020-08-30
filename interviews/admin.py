@@ -59,6 +59,8 @@ download_interview_date_second.short_description = "Download ALL interview slots
 
 
 class InterviewDataAdmin(admin.ModelAdmin):
+    list_display = ('datetime', 'digital_impact',
+                    'current_interviewers', 'current_interviewees', 'room')
     actions = [download_interview_date, download_interview_date_second]
 
 
