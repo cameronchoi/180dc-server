@@ -17,7 +17,7 @@ import csv
 
 from .models import Option, Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
-    GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer, \
+    GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer, CreateTimesSerializer, \
     PasswordChangeSerializer, PasswordResetSerializer, InterviewerRegisterSerializer, IntervieweeRegisterSerializer
 
 
@@ -269,6 +269,32 @@ def interviewee_slot_list(request):
             return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
 
+# API view for bulk creating interview times
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def create_times(request):
+    if request.method == 'POST':
+        request_data = JSONParser().parse(request)
+        create_times_serializer = CreateTimesSerializer(
+            data=request_data)
+        if create_times_serializer.is_valid():
+            interviewer_num = create_times_serializer.data['interviewer_num']
+            interviewee_num = create_times_serializer.data['interviewee_num']
+            for i in range(create_times_serializer.data['digital_impact_num']):
+                for timeslot in create_times_serializer.data['times']:
+                    InterviewData.objects.create(
+                        datetime=timeslot, digital_impact=True, max_interviewers=interviewer_num, max_interviewees=interviewee_num)
+            for j in range(create_times_serializer.data['strategy_num']):
+                for timeslot in create_times_serializer.data['times']:
+                    InterviewData.objects.create(
+                        datetime=timeslot, digital_impact=False, max_interviewers=interviewer_num, max_interviewees=interviewee_num)
+
+            response = {'status': 'times successfully made'}
+            return JsonResponse(response)
+        else:
+            return JsonResponse(create_times_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 # API view for updating if interviewers can submit or not
 @api_view(['GET', 'POST'])
 @permission_classes([IsAdminUser])
@@ -379,14 +405,6 @@ def reset_password(request):
 
 def reset_password_confirm(request, uidb64, token):
     return
-
-
-@api_view(['POST'])
-@permission_classes([IsAdminUser])
-def create_times(request):
-    if request.method == 'POST':
-        request_data = JSONParser().parse(request)
-        print(request_data)
 
 
 # outputs a csv of all interviewees

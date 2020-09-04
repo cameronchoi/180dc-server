@@ -64,7 +64,7 @@ class InterviewData(models.Model):
     datetime = models.DateTimeField()
     interviewers = models.ManyToManyField(Interviewer, blank=True)
     interviewees = models.ManyToManyField(Interviewee, blank=True)
-    max_interviewees = models.IntegerField(default=1)
+    max_interviewees = models.IntegerField(default=4)
     current_interviewees = models.IntegerField(default=0)
     max_interviewers = models.IntegerField(default=2)
     current_interviewers = models.IntegerField(default=0)

@@ -48,8 +48,21 @@ class InterviewTimeslotSerializer(serializers.Serializer):
         child=serializers.DateTimeField()
     )
 
+# serializer for bulk creating times
+
+
+class CreateTimesSerializer(serializers.Serializer):
+    times = serializers.ListField(
+        child=serializers.DateTimeField()
+    )
+    digital_impact_num = serializers.IntegerField()
+    strategy_num = serializers.IntegerField()
+    interviewer_num = serializers.IntegerField()
+    interviewee_num = serializers.IntegerField()
 
 # serializer for interviewer registration option
+
+
 class InterviewerRegisterSerializer(serializers.Serializer):
     interviewer_registration_open = serializers.BooleanField()
 
