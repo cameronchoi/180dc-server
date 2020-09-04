@@ -18,7 +18,7 @@ import csv
 from .models import Option, Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
     GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer, \
-    PasswordChangeSerializer, PasswordResetSerializer, InterviewerRegisterSerializer
+    PasswordChangeSerializer, PasswordResetSerializer, InterviewerRegisterSerializer, IntervieweeRegisterSerializer
 
 
 @api_view(['POST'])
@@ -202,64 +202,71 @@ def interviewee_slot_list(request):
     # NB interviewees can only have 1 allocated time, so a redo will delete old allocation and reallocate
     # atm not implemented, 1 submission = 1 time
     elif request.method == 'POST':
-        # parse and generate serializer
-        interviewee_slot_data = JSONParser().parse(request)
-        interviewee_slot_serializer = InterviewTimeslotSerializer(
-            data=interviewee_slot_data)
-        if interviewee_slot_serializer.is_valid():
-            interviewee = Interviewee.objects.get(
-                digital_impact=request.user.interviewee.digital_impact,
-                user=request.user)  # get model for current user
-
-            # if interviewee already has times, nuke all their old times
-            old_interview_slots = InterviewData.objects.filter(
-                interviewees=interviewee)
-            for old_interview_slot in old_interview_slots:
-                old_interview_slot.current_interviewees -= 1
-                old_interview_slot.interviewees.remove(interviewee)
-                old_interview_slot.save()
-
-            # pull all available times
-            for timeslot in interviewee_slot_serializer.data['availableTimes']:
-                interview_slots = InterviewData.objects.filter(
+        # check if interviewee "applications" are closed
+        interviewer_option = Option.objects.get(name="interviewee_register")
+        if interviewer_option.option is True:
+            # parse and generate serializer
+            interviewee_slot_data = JSONParser().parse(request)
+            interviewee_slot_serializer = InterviewTimeslotSerializer(
+                data=interviewee_slot_data)
+            if interviewee_slot_serializer.is_valid():
+                interviewee = Interviewee.objects.get(
                     digital_impact=request.user.interviewee.digital_impact,
-                    datetime=timeslot)
+                    user=request.user)  # get model for current user
 
-                for interview_slot in interview_slots:
-                    # check if there's space
-                    if interview_slot.current_interviewees < interview_slot.max_interviewees:
-                        try:  # general try catch for now
-                            print("it comes here")
-                            interview_slot.interviewees.add(interviewee)
-                            interview_slot.current_interviewees += 1
-                            interview_slot.save()
+                # if interviewee already has times, nuke all their old times
+                old_interview_slots = InterviewData.objects.filter(
+                    interviewees=interviewee)
+                for old_interview_slot in old_interview_slots:
+                    old_interview_slot.current_interviewees -= 1
+                    old_interview_slot.interviewees.remove(interviewee)
+                    old_interview_slot.save()
 
-                            # generate appropriate response (if room has been set already or not)
-                            if interview_slot.room is not None:
-                                response = {
-                                    'interviewTime': timeslot,
-                                    'interviewRoom': interview_slot.room
-                                }
-                                return JsonResponse(response, status=status.HTTP_201_CREATED)
-                            else:
-                                response = {
-                                    'interviewTime': timeslot,
-                                    'interviewRoom': 'Room Not Set'
-                                }
-                                return JsonResponse(response, status=status.HTTP_201_CREATED)
-                            # break to only allocate one spot
-                            break
-                        except:
-                            # temp error response
-                            response = {'errors': 'try/catch'}
-                            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+                # pull all available times
+                for timeslot in interviewee_slot_serializer.data['availableTimes']:
+                    interview_slots = InterviewData.objects.filter(
+                        digital_impact=request.user.interviewee.digital_impact,
+                        datetime=timeslot)
 
-            # if we exit the for loop we didn't find anything
-            # temp error response
-            response = {'errors': 'Not able to be allocated'}
-            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+                    for interview_slot in interview_slots:
+                        # check if there's space
+                        if interview_slot.current_interviewees < interview_slot.max_interviewees:
+                            try:  # general try catch for now
+                                print("it comes here")
+                                interview_slot.interviewees.add(interviewee)
+                                interview_slot.current_interviewees += 1
+                                interview_slot.save()
+
+                                # generate appropriate response (if room has been set already or not)
+                                if interview_slot.room is not None:
+                                    response = {
+                                        'interviewTime': timeslot,
+                                        'interviewRoom': interview_slot.room
+                                    }
+                                    return JsonResponse(response, status=status.HTTP_201_CREATED)
+                                else:
+                                    response = {
+                                        'interviewTime': timeslot,
+                                        'interviewRoom': 'Room Not Set'
+                                    }
+                                    return JsonResponse(response, status=status.HTTP_201_CREATED)
+                                # break to only allocate one spot
+                                break
+                            except:
+                                # temp error response
+                                response = {'errors': 'try/catch'}
+                                return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
+                # if we exit the for loop we didn't find anything
+                # temp error response
+                response = {'errors': 'Not able to be allocated'}
+                return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         else:
-            return JsonResponse(interviewee_slot_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            response = {'errors': 'interviewee applications closed'}
+            return JsonResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
 
 # API view for updating if interviewers can submit or not
@@ -289,6 +296,35 @@ def interviewer_open(request):
             return JsonResponse(response)
         else:
             return JsonResponse(interviewer_register_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# API view for updating if interviewees can submit or not
+@api_view(['GET', 'POST'])
+@permission_classes([IsAdminUser])
+def interviewee_open(request):
+    if request.method == 'GET':
+        interviewee_option = Option.objects.get(name="interviewee_register")
+        if interviewee_option.option is True:
+            response = {'interviewee_registration_open': True}
+        else:
+            response = {'interviewee_registration_open': False}
+        return JsonResponse(response)
+    elif request.method == 'POST':
+        interviewee_register_data = JSONParser().parse(request)
+        interviewee_register_data_serializer = IntervieweeRegisterSerializer(
+            data=interviewee_register_data)
+        interviewee_option = Option.objects.get(name="interviewee_register")
+        if interviewee_register_data_serializer.is_valid():
+            if interviewee_register_data_serializer.data['interviewee_registration_open'] is True:
+                interviewee_option.option = True
+                interviewee_option.save()
+            else:
+                interviewee_option.option = False
+                interviewee_option.save()
+            response = {'status': 'success'}
+            return JsonResponse(response)
+        else:
+            return JsonResponse(interviewee_register_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # API view for changing password

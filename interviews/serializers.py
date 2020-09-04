@@ -54,6 +54,11 @@ class InterviewerRegisterSerializer(serializers.Serializer):
     interviewer_registration_open = serializers.BooleanField()
 
 
+# serializer for interviewee registration option
+class IntervieweeRegisterSerializer(serializers.Serializer):
+    interviewee_registration_open = serializers.BooleanField()
+
+
 # serializer for password change
 class PasswordChangeSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
