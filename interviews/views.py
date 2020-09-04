@@ -345,6 +345,14 @@ def reset_password_confirm(request, uidb64, token):
     return
 
 
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def create_times(request):
+    if request.method == 'POST':
+        request_data = JSONParser().parse(request)
+        print(request_data)
+
+
 # outputs a csv of all interviewees
 def csv_interviewees(request):
     # Create the HttpResponse object with the appropriate CSV header.

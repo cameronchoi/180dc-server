@@ -28,6 +28,9 @@ urlpatterns = [
     # path('api/resetpassword', views.reset_password),
     # path('api/resetpassword/confirm/<uidb64>/<token>', views.reset_password_confirm, name='password_reset_confirm'),
 
+    # for creating interview times
+    path('api/createtimes', views.create_times),
+
     path('csv/interviewees', views.csv_interviewees),
     path('csv/interviewers', views.csv_interviewers),
 ]
