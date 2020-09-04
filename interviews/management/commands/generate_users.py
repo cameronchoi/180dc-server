@@ -56,7 +56,7 @@ class Command(BaseCommand):
             except User.DoesNotExist:
                 # create User objects
                 user = User.objects.create_user(
-                    row['Email'].lower(), row['Email'], row['Password'])
+                    row['Email'].lower().strip(), row['Email'].lower().strip(), row['Password'].strip())
                 user.first_name = row['First Name']
                 user.last_name = row['Last Name']
 
