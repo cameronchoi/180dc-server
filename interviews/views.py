@@ -3,8 +3,8 @@ from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.forms import PasswordResetForm
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.parsers import JSONParser
+from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.authtoken.serializers import AuthTokenSerializer
@@ -14,11 +14,13 @@ from django.db.models import F
 from django.db.models import Q
 
 import csv
+import io
 
 from .models import Option, Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
     GetIntervieweeSlotSerializer, GetInterviewerSlotSerializer, GetInterviewDetailsSerializer, CreateTimesSerializer, \
-    PasswordChangeSerializer, PasswordResetSerializer, InterviewerRegisterSerializer, IntervieweeRegisterSerializer
+    PasswordChangeSerializer, PasswordResetSerializer, InterviewerRegisterSerializer, IntervieweeRegisterSerializer, \
+    SendEmailSerializer
 
 
 @api_view(['POST'])
@@ -379,6 +381,29 @@ def change_password(request):
             return JsonResponse(password_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
+def send_email(request):
+    if request.method == 'POST':
+        send_email_data_serializer = SendEmailSerializer(data=request.data)
+        if send_email_data_serializer.is_valid():
+            email = send_email_data_serializer.validated_data["email"]
+            password = send_email_data_serializer.validated_data["password"]
+            file_bytes = send_email_data_serializer.validated_data["time_csv"].read()
+            reader = csv.reader(io.StringIO(file_bytes.decode("utf-8")))
+            subject = 'Test email'
+            with yagmail.SMTP(user, app_password) as yag:
+                for row in reader:
+                    to_addr = row[0]
+                    to_password = row[1]
+                    yag.send(to=to_addr, subject=subject, contents=to_password)
+            response = {'status': 'success'}
+            return JsonResponse(response) 
+        else:
+            return JsonResponse(send_email_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 # API view for resetting password
 # doesn't work rn
 @api_view(['POST'])
@@ -479,3 +504,12 @@ def csv_interviewers(request):
         writer.writerow(row)
 
     return response
+
+
+def toggle_times(request):
+    if request.method == 'POST':
+        pass
+        # perform button toggle
+    else:
+        # display html page with custom info
+        pass

@@ -78,6 +78,12 @@ class PasswordChangeSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
 
 
+class SendEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True)
+    time_csv = serializers.FileField(required=True)
+
+
 # serializer for password reset
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)

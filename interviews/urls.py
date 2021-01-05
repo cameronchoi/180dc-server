@@ -32,6 +32,8 @@ urlpatterns = [
     # for creating interview times
     path('api/createtimes', views.create_times),
 
+    path('api/sendemail', views.send_email),
+
     path('csv/interviewees', views.csv_interviewees),
     path('csv/interviewers', views.csv_interviewers),
 ]
