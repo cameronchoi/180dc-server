@@ -399,7 +399,6 @@ def send_email(request):
 
             with open("sig.html") as f:
                 sig = f.read().replace('\n', '')
-            response = {'status': 'fail'}
             try:
                 with yagmail.SMTP(email, password) as yag:
                     for row in dict_reader:
@@ -407,16 +406,26 @@ def send_email(request):
                         subject = subject_raw.format(**row)
                         content = content_raw.format(**row)
                         yag.send(to=to_addr, subject=subject, contents=[content, sig])
-                response = {'status': 'success'}
+                status = "success"
+                message = ""
+                status_code = status.HTTP_200_OK
             except smtplib.SMTPAuthenticationError:
-                return JsonResponse({**response, "message": "Authentication error"}, status=status.HTTP_401_UNAUTHORIZED)
+                status = "fail"
+                message = "Authentication error"
+                status_code = status.HTTP_401_UNAUTHORIZED
             except KeyError:
-                return JsonResponse({**response,  "message": "Key error"}, status=status.HTTP_403_FORBIDDEN)
+                status = "fail"
+                message = "Key error"
+                status_code = status.HTTP_403_FORBIDDEN
             except ValueError:
-                return JsonResponse({**response, "message": "Value error"}, status=status.HTTP_403_FORBIDDEN)
-            return JsonResponse(response) 
+                status = "fail"
+                message = "Value error"
+                status_code = status.HTTP_403_FORBIDDEN
         else:
-            return JsonResponse({**response, "message": "Serialisation error"}, status=status.HTTP_400_BAD_REQUEST)
+            status = "fail"
+            message = "Serialisation error"
+            status_code = status.HTTP_400_BAD_REQUEST
+        return JsonResponse({"status": status, "message": message}, status=status_code)
 
 
 # API view for resetting password
