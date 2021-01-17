@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class InterviewsConfig(AppConfig):
+class AppConfig(AppConfig):
     name = 'interviews'

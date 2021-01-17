@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'corsheaders',  # for allowing cross origin resource sharing for development
     'rest_framework',  # for api
     'rest_framework.authtoken',  # for authentication
-    'interviews',  # actual application
+    # 'interviews',  # actual application
+    'interviews.apps.AppConfig',
 ]
 
 REST_FRAMEWORK = {

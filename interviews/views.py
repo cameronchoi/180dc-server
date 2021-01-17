@@ -15,6 +15,8 @@ from django.db.models import Q
 
 import csv
 import io
+import yagmail
+import smtplib
 
 from .models import Option, Interviewer, Interviewee, InterviewData
 from .serializers import InterviewerSerializer, IntervieweeSerializer, InterviewTimeslotSerializer, \
@@ -390,18 +392,31 @@ def send_email(request):
         if send_email_data_serializer.is_valid():
             email = send_email_data_serializer.validated_data["email"]
             password = send_email_data_serializer.validated_data["password"]
-            file_bytes = send_email_data_serializer.validated_data["time_csv"].read()
-            reader = csv.reader(io.StringIO(file_bytes.decode("utf-8")))
-            subject = 'Test email'
-            with yagmail.SMTP(user, app_password) as yag:
-                for row in reader:
-                    to_addr = row[0]
-                    to_password = row[1]
-                    yag.send(to=to_addr, subject=subject, contents=to_password)
-            response = {'status': 'success'}
+            file_bytes = send_email_data_serializer.validated_data["file_dict"].read()
+            subject_raw = send_email_data_serializer.validated_data["subject"]
+            content_raw = send_email_data_serializer.validated_data["content"]
+            dict_reader = csv.DictReader(io.StringIO(file_bytes.decode("utf-8")))
+
+            with open("sig.html") as f:
+                sig = f.read().replace('\n', '')
+            response = {'status': 'fail'}
+            try:
+                with yagmail.SMTP(email, password) as yag:
+                    for row in dict_reader:
+                        to_addr = row['address']
+                        subject = subject_raw.format(**row)
+                        content = content_raw.format(**row)
+                        yag.send(to=to_addr, subject=subject, contents=[content, sig])
+                response = {'status': 'success'}
+            except smtplib.SMTPAuthenticationError:
+                return JsonResponse({**response, "message": "Authentication error"}, status=status.HTTP_401_UNAUTHORIZED)
+            except KeyError:
+                return JsonResponse({**response,  "message": "Key error"}, status=status.HTTP_403_FORBIDDEN)
+            except ValueError:
+                return JsonResponse({**response, "message": "Value error"}, status=status.HTTP_403_FORBIDDEN)
             return JsonResponse(response) 
         else:
-            return JsonResponse(send_email_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({**response, "message": "Serialisation error"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # API view for resetting password
