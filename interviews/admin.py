@@ -1,7 +1,8 @@
 import csv
 
 from django.contrib import admin
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import path
 
 from .models import Option, Interviewer, Interviewee, InterviewData
 from .management.commands.generate_interview_schedule import generate_interview_data_df
@@ -87,8 +88,31 @@ class InterviewDataAdmin(admin.ModelAdmin):
                download_interview_date_second, download_find_interviewees]
 
 
+class OptionDataAdmin(admin.ModelAdmin):
+    list_display = ("description", "option")
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('<str:option>/', self.admin_site.admin_view(self.toggle_option))
+        ]
+        return custom_urls + urls
+
+    def toggle_option(self, request, **kwargs):
+        interviewee_object = Option.objects.get(name=kwargs['option'])
+        interviewee_object.option = not interviewee_object.option
+        interviewee_object.save()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    def changelist_view(self, request, extra_context=None):
+        return super().changelist_view(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 # Register your models here.
-admin.site.register(Option)
+admin.site.register(Option, OptionDataAdmin)
 admin.site.register(Interviewer)
 admin.site.register(Interviewee)
 admin.site.register(InterviewData, InterviewDataAdmin)
