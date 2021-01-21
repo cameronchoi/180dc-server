@@ -10,7 +10,7 @@ def result_list(cl):
     options = prev["cl"].queryset.all()
     for i in range(len(options)):
         target_url = f"{options[i].name}"
-        prev["results"][i].append(mark_safe(f'<td class="field-toggle"><a href="{target_url}">Toggle</a></td>'))
+        prev["results"][i].append(mark_safe(f'<td class="field-toggle"><a href="toggle/{target_url}">Toggle</a></td>'))
     return prev
 
 register = template.Library()

@@ -94,7 +94,7 @@ class OptionDataAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('<str:option>/', self.admin_site.admin_view(self.toggle_option))
+            path('toggle/<str:option>/', self.admin_site.admin_view(self.toggle_option))
         ]
         return custom_urls + urls
 
@@ -104,8 +104,6 @@ class OptionDataAdmin(admin.ModelAdmin):
         interviewee_object.save()
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-    def changelist_view(self, request, extra_context=None):
-        return super().changelist_view(request)
 
     def has_delete_permission(self, request, obj=None):
         return False
