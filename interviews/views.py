@@ -395,37 +395,44 @@ def send_email(request):
             file_bytes = send_email_data_serializer.validated_data["file_dict"].read()
             subject_raw = send_email_data_serializer.validated_data["subject"]
             content_raw = send_email_data_serializer.validated_data["content"]
+            try:
+                sig_bytes = send_email_data_serializer.validated_data["signature"].read()
+                sig = sig_bytes.decode("utf-8").replace('\n', '')
+            except KeyError:
+                sig = None
             dict_reader = csv.DictReader(io.StringIO(file_bytes.decode("utf-8")))
-
-            with open("sig.html") as f:
-                sig = f.read().replace('\n', '')
+            
             try:
                 with yagmail.SMTP(email, password) as yag:
                     for row in dict_reader:
                         to_addr = row['address']
                         subject = subject_raw.format(**row)
                         content = content_raw.format(**row)
-                        yag.send(to=to_addr, subject=subject, contents=[content, sig])
-                status = "success"
+                        contents = [content]
+                        if (sig):
+                            contents.append(sig)
+                        yag.send(to=to_addr, subject=subject, contents=contents)
+                status_str = "success"
                 message = ""
                 status_code = status.HTTP_200_OK
             except smtplib.SMTPAuthenticationError:
-                status = "fail"
+                status_str = "fail"
                 message = "Authentication error"
                 status_code = status.HTTP_401_UNAUTHORIZED
-            except KeyError:
-                status = "fail"
+            except KeyError as e:
+                status_str = "fail"
                 message = "Key error"
                 status_code = status.HTTP_403_FORBIDDEN
             except ValueError:
-                status = "fail"
+                status_str = "fail"
                 message = "Value error"
                 status_code = status.HTTP_403_FORBIDDEN
         else:
-            status = "fail"
+            print(send_email_data_serializer.errors)
+            status_str = "fail"
             message = "Serialisation error"
             status_code = status.HTTP_400_BAD_REQUEST
-        return JsonResponse({"status": status, "message": message}, status=status_code)
+        return JsonResponse({"status": status_str, "message": message}, status=status_code)
 
 
 # API view for resetting password

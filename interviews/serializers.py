@@ -82,6 +82,7 @@ class SendEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True)
     file_dict = serializers.FileField(required=True)
+    signature = serializers.FileField(required=False)
     subject = serializers.CharField(required=True)
     content = serializers.CharField(required=True)
 
