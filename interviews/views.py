@@ -10,8 +10,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.authtoken.models import Token
 
-from django.db.models import F
-from django.db.models import Q
+from django.db.models import F, Q
 
 import csv
 import io

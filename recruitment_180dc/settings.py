@@ -41,13 +41,24 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'channels',
     'corsheaders',  # for allowing cross origin resource sharing for development
     'rest_framework',  # for api
     'rest_framework.authtoken',  # for authentication
     # 'interviews',  # actual application
     'interviews.apps.AppConfig',
 ]
+
+ASGI_APPLICATION = "interviews.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)]
+        }
+    },
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
