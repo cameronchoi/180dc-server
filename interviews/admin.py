@@ -83,7 +83,7 @@ download_find_interviewees.short_description = "Download interviewees who have n
 
 class InterviewDataAdmin(admin.ModelAdmin):
     list_display = ('datetime', 'digital_impact',
-                    'current_interviewers', 'current_interviewees', 'room')
+                    'current_interviewers', 'max_interviewers', 'current_interviewees', 'max_interviewees', 'room')
     actions = [download_interview_date,
                download_interview_date_second, download_find_interviewees]
 
