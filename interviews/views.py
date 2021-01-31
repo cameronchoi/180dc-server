@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.authtoken.models import Token
 
-from django.db.models import F, Q
+from django.db.models import F, Q, Count
 
 import csv
 import io
@@ -107,8 +107,8 @@ def interview_details(request):
 def interviewer_slot_list(request):
     # GET request is a list of available times that interviewers can submit to
     if request.method == 'GET':
-        interview_slots = InterviewData.objects.all().filter(
-            Q(current_interviewers__lt=F('max_interviewers')) | Q(interviewers__user=request.user))
+        interview_slots = InterviewData.objects.annotate(current_interviewers=interviewers.count()) \
+                                               .filter(Q(current_interviewers__lt=F('max_interviewers')) | Q(interviewers__user=request.user))
 
         if hasattr(request.user, 'interviewer'):
             interview_slots = interview_slots.filter(
@@ -142,7 +142,6 @@ def interviewer_slot_list(request):
                 old_interview_slots = InterviewData.objects.filter(
                     interviewers=interviewer)
                 for old_interview_slot in old_interview_slots:
-                    old_interview_slot.current_interviewers -= 1
                     old_interview_slot.interviewers.remove(interviewer)
                     old_interview_slot.save()
 
@@ -155,13 +154,10 @@ def interviewer_slot_list(request):
 
                     for interview_slot in interview_slots:
                         # assign slot if there's space and max assigned interviews not hit yet
-                        if (
-                                interview_slot.current_interviewers < interview_slot.max_interviewers
-                        ):
+                        if (interview_slot.interviewers.count() < interview_slot.max_interviewers):
                             try:  # general try catch for now
                                 count += 1
                                 interview_slot.interviewers.add(interviewer)
-                                interview_slot.current_interviewers += 1
                                 interview_slot.save()
                                 # break to only allocate one spot
                                 break
@@ -185,8 +181,8 @@ def interviewer_slot_list(request):
 def interviewee_slot_list(request):
     # GET request is a list of available times that interviewees can submit to
     if request.method == 'GET':
-        interview_slots = InterviewData.objects.filter(current_interviewees__lt=F(
-            'max_interviewees')).filter(current_interviewers__exact=F('max_interviewers'))
+        interview_slots = InterviewData.objects.annotate(current_interviewees=Count('interviewees'), current_interviewers=Count('interviewers')) \
+                                               .filter(current_interviewees__lt=F('max_interviewees')).filter(current_interviewers__exact=F('max_interviewers'))
 
         if hasattr(request.user, 'interviewee'):
             interview_slots = interview_slots.filter(
@@ -221,7 +217,6 @@ def interviewee_slot_list(request):
                 old_interview_slots = InterviewData.objects.filter(
                     interviewees=interviewee)
                 for old_interview_slot in old_interview_slots:
-                    old_interview_slot.current_interviewees -= 1
                     old_interview_slot.interviewees.remove(interviewee)
                     old_interview_slot.save()
 
@@ -233,11 +228,10 @@ def interviewee_slot_list(request):
 
                     for interview_slot in interview_slots:
                         # check if there's space
-                        if interview_slot.current_interviewees < interview_slot.max_interviewees:
+                        if interview_slot.interviewees.count() < interview_slot.max_interviewees:
                             try:  # general try catch for now
                                 print("it comes here")
                                 interview_slot.interviewees.add(interviewee)
-                                interview_slot.current_interviewees += 1
                                 interview_slot.save()
 
                                 # generate appropriate response (if room has been set already or not)

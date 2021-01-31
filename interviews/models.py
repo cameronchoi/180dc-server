@@ -65,9 +65,7 @@ class InterviewData(models.Model):
     interviewers = models.ManyToManyField(Interviewer, blank=True)
     interviewees = models.ManyToManyField(Interviewee, blank=True)
     max_interviewees = models.IntegerField(default=4)
-    current_interviewees = models.IntegerField(default=0)
     max_interviewers = models.IntegerField(default=2)
-    current_interviewers = models.IntegerField(default=0)
     room = models.CharField(null=True, blank=True, max_length=200)
     digital_impact = models.BooleanField(default=False)  # false = strategy
 

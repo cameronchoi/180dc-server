@@ -87,6 +87,12 @@ class InterviewDataAdmin(admin.ModelAdmin):
     actions = [download_interview_date,
                download_interview_date_second, download_find_interviewees]
 
+    def current_interviewers(self, obj):
+        return obj.interviewers.count()
+
+    def current_interviewees(self, obj):
+        return obj.interviewees.count()
+
 
 class OptionDataAdmin(admin.ModelAdmin):
     list_display = ("description", "option")

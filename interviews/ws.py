@@ -8,17 +8,21 @@ from django.db.models import signals
 from django.dispatch import receiver
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import F, Q
+from django.db.models import Count
 
 class InterviewDataConsumer(JsonWebsocketConsumer):
 
     def fetch_data(self):
         if hasattr(self.user, 'interviewer'):
-            interview_slots = InterviewData.objects.filter(Q(current_interviewers__lt=F('max_interviewers')) | Q(interviewers__user=self.user))
+            interview_slots = InterviewData.objects.annotate(current_interviewers=Count('interviewers')) \
+                                                   .filter(Q(current_interviewers__lt=F('max_interviewers')) | Q(interviewers__user=self.user))
             interview_slots = interview_slots.filter(digital_impact=self.user.interviewer.digital_impact)
             interviewer_slot_serializer = GetInterviewerSlotSerializer(interview_slots, many=True)
             return interviewer_slot_serializer.data
         elif hasattr(self.user, 'interviewee'):
-            interview_slots = InterviewData.objects.filter(current_interviewees__lt=F('max_interviewees')).filter(current_interviewers__exact=F('max_interviewers'))
+            interview_slots = InterviewData.objects.annotate(current_interviewees=Count('interviewees'), current_interviewers=Count('interviewers')) \
+                                                   .filter(current_interviewees__lt=F('max_interviewees')) \
+                                                   .filter(current_interviewers__exact=F('max_interviewers'))
             interview_slots = interview_slots.filter(digital_impact=self.user.interviewee.digital_impact)
             interviewee_slot_serializer = GetIntervieweeSlotSerializer(interview_slots, many=True)
             return interviewee_slot_serializer.data
@@ -31,6 +35,7 @@ class InterviewDataConsumer(JsonWebsocketConsumer):
         async_to_sync(self.channel_layer.group_add)('interview_data_request_group', self.channel_name)
         self.accept()
         self.send_json(self.fetch_data())
+        print(self.user.interviewee.interviewdata_set.all())
 
 
     def disconnect(self, close_code):
