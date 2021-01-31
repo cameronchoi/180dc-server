@@ -35,8 +35,6 @@ class InterviewDataConsumer(JsonWebsocketConsumer):
         async_to_sync(self.channel_layer.group_add)('interview_data_request_group', self.channel_name)
         self.accept()
         self.send_json(self.fetch_data())
-        print(self.user.interviewee.interviewdata_set.all())
-
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)('interview_data_request_group', self.channel_name)
