@@ -14,26 +14,29 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from . import views
+import interviews.views as views
+
+from django.views.decorators.csrf import csrf_exempt
+
 
 urlpatterns = [
-    path('api/login', views.login_view),
-    path('api/interviewee', views.interviewee_details),
-    path('api/interviewer', views.interviewer_details),
-    path('api/interviewertimes', views.interviewer_slot_list),
-    path('api/intervieweetimes', views.interviewee_slot_list),
-    path('api/interviewtimes', views.interview_details),
-    path('api/interviewertimes/update', views.interviewer_open),
-    path('api/intervieweetimes/update', views.interviewee_open),
-    path('api/changepassword', views.change_password),
+    path('api/login', views.LoginView.as_view()),
+    path('api/interviewee', views.IntervieweeDetails.as_view()),
+    path('api/interviewer', views.InterviewerDetails.as_view()),
+    path('api/interviewertimes', views.InterviewerSlotList.as_view()),
+    path('api/intervieweetimes', views.IntervieweeSlotList.as_view()),
+    path('api/interviewtimes', views.InterviewDetails.as_view()),
+    path('api/interviewertimes/update', views.InterviewerOpen.as_view()),
+    path('api/intervieweetimes/update', views.IntervieweeOpen.as_view()),
+    path('api/changepassword', views.ChangePassword.as_view()),
     # path('api/resetpassword', views.reset_password),
     # path('api/resetpassword/confirm/<uidb64>/<token>', views.reset_password_confirm, name='password_reset_confirm'),
 
     # for creating interview times
-    path('api/createtimes', views.create_times),
+    path('api/createtimes', views.CreateTimes.as_view()),
 
-    path('api/sendemail', views.send_email),
+    path('api/sendemail', views.SendEmail.as_view()),
 
-    path('csv/interviewees', views.csv_interviewees),
-    path('csv/interviewers', views.csv_interviewers),
+    path('csv/interviewees', views.CSVInterviewees.as_view()),
+    path('csv/interviewers', views.CSVInterviewers.as_view()),
 ]
