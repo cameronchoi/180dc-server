@@ -89,9 +89,11 @@ class InterviewDataAdmin(admin.ModelAdmin):
 
     def current_interviewers(self, obj):
         return obj.interviewers.count()
+    current_interviewers.admin_order_field = 'interviewers__count'
 
     def current_interviewees(self, obj):
         return obj.interviewees.count()
+    current_interviewees.admin_order_field = 'interviewees__count'
 
 
 class OptionDataAdmin(admin.ModelAdmin):
