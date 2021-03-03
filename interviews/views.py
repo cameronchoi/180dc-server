@@ -141,6 +141,7 @@ class InterviewerSlotList(APIView):
                         count += 1
                         interview_slot.interviewers.add(interviewer)
                         interview_slot.save()
+                        break
 
             if count == 0:
                 response = {'errors': 'Not allocated a time'}
