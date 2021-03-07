@@ -196,7 +196,7 @@ class IntervieweeSlotList(APIView):
 
                 for interview_slot in interview_slots:
                     # check if there's space
-                    if interview_slot.interviewees.count() < interview_slot.max_interviewees:
+                    if interview_slot.interviewees.count() < interview_slot.max_interviewees and interview_slot.interviewers.count() == interview_slot.max_interviewers:
                         interview_slot.interviewees.add(interviewee)
                         interview_slot.save()
 
