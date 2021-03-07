@@ -3,6 +3,7 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import path
+from django.db.models import Count
 
 from .models import Option, Interviewer, Interviewee, InterviewData
 from .management.commands.generate_interview_schedule import generate_interview_data_df
@@ -87,13 +88,19 @@ class InterviewDataAdmin(admin.ModelAdmin):
     actions = [download_interview_date,
                download_interview_date_second, download_find_interviewees]
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        qs = qs.annotate(interviewers_count=Count("interviewers", distinct=True),
+                         interviewees_count=Count("interviewees", distinct=True))
+        return qs
+
     def current_interviewers(self, obj):
-        return obj.interviewers.count()
-    current_interviewers.admin_order_field = 'interviewers__count'
+        return obj.interviewers_count
+    current_interviewers.admin_order_field = 'interviewers_count'
 
     def current_interviewees(self, obj):
-        return obj.interviewees.count()
-    current_interviewees.admin_order_field = 'interviewees__count'
+        return obj.interviewees_count
+    current_interviewees.admin_order_field = 'interviewees_count'
 
 
 class OptionDataAdmin(admin.ModelAdmin):
